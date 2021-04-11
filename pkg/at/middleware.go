@@ -7,15 +7,24 @@ type Middleware struct {
 	BaseAnnotation
 }
 
-// MiddlewareHandler is the annotation that annotate the controller or method use middleware
-type MiddlewareHandler struct {
+// BeforeHandler is the annotation that annotate the controller or method use middleware
+type BeforeHandler struct {
 	Annotation
 
 	BaseAnnotation
 }
 
-// MiddlewarePostHandler is the annotation that annotate the controller or method use middleware
-type MiddlewarePostHandler struct {
+
+// EmbedHandler is the annotation that annotate the controller or method use middleware
+// This handler is embedded in to the method
+type EmbedHandler struct {
+	Annotation
+
+	BaseAnnotation
+}
+
+// AfterHandler is the annotation that annotate the controller or method use middleware
+type AfterHandler struct {
 	Annotation
 
 	BaseAnnotation

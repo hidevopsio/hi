@@ -351,12 +351,12 @@ func (d *Dispatcher) register(controllers []*factory.MetaData, middleware []*fac
 	var mws []*injectableObject
 	var postMws []*injectableObject
 	for _, m := range middleware {
-		mw := d.parseMiddleware(m, at.MiddlewareHandler{})
+		mw := d.parseMiddleware(m, at.BeforeHandler{})
 		if mw != nil {
 			mws = append(mws, mw)
 		}
 
-		postMw := d.parseMiddleware(m, at.MiddlewarePostHandler{})
+		postMw := d.parseMiddleware(m, at.AfterHandler{})
 		if postMw != nil {
 			postMws = append(postMws, postMw)
 		}

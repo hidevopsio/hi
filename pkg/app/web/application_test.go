@@ -966,7 +966,7 @@ func newConditionalFakeJwtMiddleware() *fakeConditionalJwtMiddleware {
 }
 
 // CheckJwt
-func (m *fakeConditionalJwtMiddleware) CheckJwt(at struct{ at.MiddlewareHandler
+func (m *fakeConditionalJwtMiddleware) CheckJwt(at struct{ at.BeforeHandler
 }, ctx context.Context)  {
 	log.Debug("fakeConditionalJwtMiddleware.CheckJwt()")
 	if ctx.URLParam("token") == "" {
@@ -987,7 +987,7 @@ func newMethodConditionalFakeJwtMiddleware() *fakeMethodConditionalJwtMiddleware
 
 // CheckJwt
 func (m *fakeMethodConditionalJwtMiddleware) CheckJwt(at struct{
-	at.MiddlewareHandler
+	at.BeforeHandler
 	at.UseJwt
 }, ctx context.Context)  {
 	log.Debug("fakeMethodConditionalJwtMiddleware.CheckJwt()")
@@ -1010,7 +1010,7 @@ func newFooMiddleware() *fooMiddleware {
 
 // Logging is the middleware handler,it support dependency injection, method annotation
 // middleware handler can be annotated to specific purpose or general purpose
-func (m *fooMiddleware) Logging( _ struct{at.MiddlewareHandler `value:"/" `}, ctx context.Context) {
+func (m *fooMiddleware) Logging( _ struct{at.BeforeHandler `value:"/" `}, ctx context.Context) {
 
 	log.Infof("[logging middleware] %v", ctx.GetCurrentRoute())
 
@@ -1020,7 +1020,7 @@ func (m *fooMiddleware) Logging( _ struct{at.MiddlewareHandler `value:"/" `}, ct
 }
 // Logging is the middleware handler,it support dependency injection, method annotation
 // middleware handler can be annotated to specific purpose or general purpose
-func (m *fooMiddleware) PostLogging( _ struct{at.MiddlewarePostHandler `value:"/" `}, ctx context.Context) {
+func (m *fooMiddleware) PostLogging( _ struct{at.AfterHandler `value:"/" `}, ctx context.Context) {
 
 	log.Infof("[logging middleware] %v", ctx.GetCurrentRoute())
 
