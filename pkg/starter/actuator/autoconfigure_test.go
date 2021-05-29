@@ -6,6 +6,6 @@ import (
 )
 
 func TestConfiguration(t *testing.T) {
-	c := newConfiguration(&properties{})
+	c := newConfiguration()
 	assert.NotEqual(t, nil, c)
 }

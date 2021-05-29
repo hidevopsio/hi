@@ -5,6 +5,7 @@ app:
   project: hidevopsio
   name: grpc-client
   profiles:
+    active: default
     include:
     - logging
     - locale

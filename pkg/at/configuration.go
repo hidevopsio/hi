@@ -27,3 +27,9 @@ type ConfigurationProperties struct {
 
 	BaseAnnotation
 }
+
+type AllowNil struct {
+	Annotation
+
+	BaseAnnotation
+}

@@ -16,14 +16,19 @@
 package grpc
 
 import (
+	"reflect"
+
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	pb "google.golang.org/grpc/health/grpc_health_v1"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/utils/cmap"
-	"hidevops.io/hiboot/pkg/utils/reflector"
-	"reflect"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/starter/jaeger"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 )
 
 const (
@@ -38,8 +43,8 @@ type configuration struct {
 	instantiateFactory factory.InstantiateFactory
 }
 
-func newConfiguration(properties *properties, instantiateFactory factory.InstantiateFactory) *configuration {
-	c := &configuration{Properties: properties, instantiateFactory: instantiateFactory}
+func newConfiguration(instantiateFactory factory.InstantiateFactory) *configuration {
+	c := &configuration{instantiateFactory: instantiateFactory}
 	var dep []string
 	for _, srv := range grpcServers {
 		if srv.svc != nil {
@@ -56,6 +61,8 @@ type grpcService struct {
 	svc  interface{}
 }
 
+type ClientConn grpc.ClientConn
+
 var (
 	grpcServers []*grpcService
 	grpcClients []*grpcService
@@ -63,6 +70,9 @@ var (
 	clientMap cmap.ConcurrentMap
 
 	registerHealthCheckService = false
+
+	Header = grpc.Header
+	Server = RegisterServer
 )
 
 // RegisterServer register server from application
@@ -76,9 +86,6 @@ func RegisterServer(register interface{}, server interface{}) {
 	app.Register(server)
 	grpcServers = append(grpcServers, svr)
 }
-
-// Server alias to RegisterServer
-var Server = RegisterServer
 
 // registerClient register client from application
 func registerClient(name string, clientConstructors ...interface{}) {
@@ -128,14 +135,15 @@ var Client = RegisterClient
 func init() {
 	clientMap = cmap.New()
 	Server(pb.RegisterHealthServer, health.NewServer)
+	app.IncludeProfiles(jaeger.Profile)
 	app.Register(newConfiguration, new(properties))
 }
 
 
 // ClientConnector is the interface that connect to grpc client
 // it can be injected to struct at runtime
-func (c *configuration) ClientConnector() ClientConnector {
-	return newClientConnector(c.instantiateFactory)
+func (c *configuration) ClientConnector(_ at.AllowNil, tracer jaeger.Tracer) ClientConnector {
+	return newClientConnector(c.instantiateFactory, tracer)
 }
 
 // GrpcClientFactory create gRPC Clients that registered by application
@@ -144,10 +152,24 @@ func (c *configuration) ClientFactory(cc ClientConnector) ClientFactory {
 }
 
 // GrpcServer create new gRpc Server
-func (c *configuration) Server() (grpcServer *grpc.Server) {
-	// just return if grpc server is not enabled
+func (c *configuration) Server(_ at.AllowNil, tracer jaeger.Tracer) (grpcServer *grpc.Server) {
 	if c.Properties.Server.Enabled {
-		grpcServer = grpc.NewServer()
+		if tracer == nil {
+			grpcServer = grpc.NewServer()
+		} else {
+			// just return if grpc server is not enabled
+			grpcServer = grpc.NewServer(
+				grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+					// add opentracing stream interceptor to chain
+					grpc_opentracing.StreamServerInterceptor(grpc_opentracing.WithTracer(tracer)),
+				)),
+				grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+					// add opentracing unary interceptor to chain
+					grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
+				)),
+			)
+
+		}
 	}
 	return
 }

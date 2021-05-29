@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 	pb "google.golang.org/grpc/health/grpc_health_v1"
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/at"
 	"time"
 )
 

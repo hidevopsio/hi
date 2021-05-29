@@ -1,0 +1,15 @@
+# config file for testing
+# filename should be application.yml
+
+app:
+  project: hidevopsio
+  name: hiboot-cmd
+  profiles:
+    include:
+      - foo
+
+logging:
+  level: info
+
+magic:
+  number: 666

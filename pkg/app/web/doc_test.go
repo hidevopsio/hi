@@ -15,15 +15,15 @@
 package web_test
 
 import (
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/model"
-	"hidevops.io/hiboot/pkg/starter/jwt"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/model"
+	"github.com/hidevopsio/hiboot/pkg/starter/jwt"
 	"time"
 )
 
 // This example shows that jwtToken is injected through method Init,
-// once you imported "hidevops.io/hiboot/pkg/starter/jwt",
+// once you imported "github.com/hidevopsio/hiboot/pkg/starter/jwt",
 // jwtToken jwt.Token will be injectable.
 func Example() {
 	// the web application entry
@@ -45,7 +45,7 @@ type userRequest struct {
 }
 
 // newLoginController inject jwtToken through the argument jwtToken jwt.Token on constructor
-// the dependency jwtToken is auto configured in jwt starter, see https://hidevops.io/hiboot/tree/master/pkg/starter/jwt
+// the dependency jwtToken is auto configured in jwt starter, see https://github.com/hidevopsio/hiboot/tree/master/pkg/starter/jwt
 func newLoginController(token jwt.Token) *loginController {
 	return &loginController{
 		token: token,

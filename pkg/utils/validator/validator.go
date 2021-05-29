@@ -16,14 +16,12 @@
 package validator
 
 import (
-	"gopkg.in/go-playground/validator.v8"
+	"github.com/go-playground/validator/v10"
 )
 
 // Validate is the instance of the validator
 var Validate *validator.Validate
 
 func init() {
-	config := &validator.Config{TagName: "validate"}
-
-	Validate = validator.New(config)
+	Validate = validator.New()
 }

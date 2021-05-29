@@ -16,12 +16,15 @@ package cmd
 
 import (
 	"github.com/stretchr/testify/assert"
-	_ "hidevops.io/hiboot/examples/cli/advanced/config"
-	"hidevops.io/hiboot/pkg/app/cli"
+	_ "github.com/hidevopsio/hiboot/examples/cli/advanced/config"
+	"github.com/hidevopsio/hiboot/pkg/app/cli"
+	"sync"
 	"testing"
 )
 
+var mu sync.Mutex
 func TestRootCommands(t *testing.T) {
+	mu.Lock()
 	testApp := cli.NewTestApplication(t, NewRootCommand)
 
 	t.Run("should run first command", func(t *testing.T) {
@@ -59,4 +62,5 @@ func TestRootCommands(t *testing.T) {
 		assert.NotEqual(t, nil, err)
 		assert.Contains(t, err.Error(), "unknown command")
 	})
+	mu.Unlock()
 }

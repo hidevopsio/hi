@@ -18,9 +18,9 @@ package jwt
 import (
 	"github.com/dgrijalva/jwt-go"
 	mw "github.com/iris-contrib/middleware/jwt"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
 )
 
 const (
@@ -37,11 +37,11 @@ type configuration struct {
 }
 
 func init() {
-	app.Register(newConfiguration, new(Properties))
+	app.Register(newConfiguration)
 }
 
-func newConfiguration(properties *Properties) *configuration {
-	return &configuration{Properties: properties}
+func newConfiguration() *configuration {
+	return &configuration{}
 }
 
 func (c *configuration) Middleware(jwtToken Token) *Middleware {

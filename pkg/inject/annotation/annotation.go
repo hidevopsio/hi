@@ -16,13 +16,13 @@ package annotation
 
 import (
 	"fmt"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/types"
-	"hidevops.io/hiboot/pkg/utils/mapstruct"
-	"hidevops.io/hiboot/pkg/utils/reflector"
-	"hidevops.io/hiboot/pkg/utils/str"
-	"hidevops.io/hiboot/pkg/utils/structtag"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/types"
+	"github.com/hidevopsio/hiboot/pkg/utils/mapstruct"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/hiboot/pkg/utils/structtag"
 	"reflect"
 	"strings"
 )
@@ -334,5 +334,47 @@ func injectIntoField(field *Field) (err error) {
 			err = mapstruct.Decode(fieldValue.Addr().Interface(), values, mapstruct.WithSquash, mapstruct.WithAnnotation)
 		}
 	}
+	return
+}
+
+// GetAnnotatedMethods
+func FindAnnotatedMethods(object interface{}, att interface{}) (methods []reflect.Method, annotations []*Annotation) {
+	objVal := reflect.ValueOf(object)
+	objTyp := objVal.Type()
+	numOfMethod := objVal.NumMethod()
+	//log.Debug("methods: ", numOfMethod)
+	for mi := 0; mi < numOfMethod; mi++ {
+		// get method
+		method := objTyp.Method(mi)
+		//log.Debug(method.Name)
+		ann := FindMethodAnnotation(method, att)
+		if ann != nil {
+			methods = append(methods, method)
+			annotations = append(annotations, ann)
+		}
+	}
+	return
+}
+
+// HasMethodAnnotation
+func FindMethodAnnotation(method reflect.Method, att interface{}) (annotation *Annotation) {
+	numIn := method.Type.NumIn()
+	for n := 1; n < numIn; n++ {
+		typ := method.Type.In(n)
+		iTyp := reflector.IndirectType(typ)
+		if iTyp.Kind() == reflect.Struct {
+			av := reflect.New(typ)
+			avo := av.Interface()
+			ma := GetAnnotations(avo)
+			if ma != nil {
+				ann := Find(ma, att)
+				if ann != nil {
+					annotation = ann
+					break
+				}
+			}
+		}
+	}
+
 	return
 }

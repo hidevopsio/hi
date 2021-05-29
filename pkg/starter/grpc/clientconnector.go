@@ -1,34 +1,73 @@
 package grpc
 
 import (
+	"time"
+
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"google.golang.org/grpc"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/reflector"
+	"google.golang.org/grpc/keepalive"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/starter/jaeger"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 )
 
 // ClientConnector interface is response for creating grpc client connection
 type ClientConnector interface {
 	// Connect connect the gRPC client
-	Connect(name string, cb interface{}, prop *ClientProperties) (gRPCCli interface{}, err error)
+	ConnectWithName(name string, cb interface{}, prop *ClientProperties) (gRPCCli interface{}, err error)
+	Connect(address string) (conn *grpc.ClientConn, err error)
 }
 
 type clientConnector struct {
 	instantiateFactory factory.InstantiateFactory
+	tracer jaeger.Tracer
 }
 
-func newClientConnector(instantiateFactory factory.InstantiateFactory) ClientConnector {
+func newClientConnector(instantiateFactory factory.InstantiateFactory, tracer jaeger.Tracer) ClientConnector {
 	cc := &clientConnector{
 		instantiateFactory: instantiateFactory,
+		tracer: tracer,
 	}
 	return cc
 }
 
-// Connect connect to grpc server from client
+
+func Connect(address string, tracer jaeger.Tracer) (conn *grpc.ClientConn, err error) {
+	if tracer == nil {
+		conn, err = grpc.Dial(address,
+			grpc.WithInsecure(),
+			grpc.WithKeepaliveParams(keepalive.ClientParameters{
+				Time:                10 * time.Second,
+				Timeout:             time.Second,
+				PermitWithoutStream: true,
+			}),
+		)
+	} else {
+		conn, err = grpc.Dial(address,
+			grpc.WithInsecure(),
+			grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
+				grpc_opentracing.StreamClientInterceptor(grpc_opentracing.WithTracer(tracer)),
+			)),
+			grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+				grpc_opentracing.UnaryClientInterceptor(grpc_opentracing.WithTracer(tracer)),
+			)),
+			grpc.WithKeepaliveParams(keepalive.ClientParameters{
+				Time:                10 * time.Second,
+				Timeout:             time.Second,
+				PermitWithoutStream: true,
+			}),
+		)
+	}
+	return conn, err
+}
+
+// ConnectWithName connect to grpc server from client with service name
 // name: client name
 // clientConstructor: client constructor
 // properties: properties for configuring
-func (c *clientConnector) Connect(name string, clientConstructor interface{}, properties *ClientProperties) (gRPCCli interface{}, err error) {
+func (c *clientConnector) ConnectWithName(name string, clientConstructor interface{}, properties *ClientProperties) (gRpcCli interface{}, err error) {
 	host := properties.Host
 	if host == "" {
 		host = name
@@ -37,7 +76,7 @@ func (c *clientConnector) Connect(name string, clientConstructor interface{}, pr
 	conn := c.instantiateFactory.GetInstance(name)
 	if conn == nil {
 		// connect to grpc server
-		conn, err = grpc.Dial(address, grpc.WithInsecure())
+		conn, err = Connect(address, c.tracer)
 		c.instantiateFactory.SetInstance(name, conn)
 		if err == nil {
 			log.Infof("gRPC client connected to: %v", address)
@@ -45,7 +84,20 @@ func (c *clientConnector) Connect(name string, clientConstructor interface{}, pr
 	}
 	if err == nil && clientConstructor != nil {
 		// get return type for register instance name
-		gRPCCli, err = reflector.CallFunc(clientConstructor, conn)
+		gRpcCli, err = reflector.CallFunc(clientConstructor, conn)
 	}
 	return
 }
+
+
+// Connect connect to client connection
+func (c *clientConnector) Connect(address string) (conn *grpc.ClientConn, err error) {
+
+	conn, err = Connect(address, c.tracer)
+	if err == nil {
+		log.Infof("gRPC client connected to: %v", address)
+	}
+
+	return
+}
+

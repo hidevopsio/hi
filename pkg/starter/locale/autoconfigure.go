@@ -17,9 +17,9 @@ package locale
 
 import (
 	"github.com/kataras/iris/middleware/i18n"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,15 +36,14 @@ type configuration struct {
 	applicationContext app.ApplicationContext
 }
 
-func newConfiguration(applicationContext app.ApplicationContext, properties *properties) *configuration {
+func newConfiguration(applicationContext app.ApplicationContext) *configuration {
 	return &configuration{
 		applicationContext: applicationContext,
-		Properties:         properties,
 	}
 }
 
 func init() {
-	app.Register(newConfiguration, new(properties))
+	app.Register(newConfiguration)
 }
 
 func (c *configuration) Handler() (handler context.Handler) {

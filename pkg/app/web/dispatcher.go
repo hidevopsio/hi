@@ -19,16 +19,16 @@ import (
 	"github.com/fatih/camelcase"
 	"github.com/kataras/iris"
 	"github.com/rakyll/statik/fs"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/app/web/webutils"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/inject/annotation"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/system"
-	"hidevops.io/hiboot/pkg/utils/reflector"
-	"hidevops.io/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/app/web/webutils"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/system"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
 	"net/http"
 	"path"
 	"reflect"
@@ -129,7 +129,7 @@ func (d *Dispatcher) parseAnnotation(object interface{}, method *reflect.Method)
 }
 
 // TODO: controller method handler, middleware handler, and event handler, they all use the same way to achieve handler dispatch.
-func (d *Dispatcher) parseMiddleware(m *factory.MetaData) (middleware *injectableObject) {
+func (d *Dispatcher) parseMiddleware(m *factory.MetaData, mwHdl interface{}) (middleware *injectableObject) {
 	middleware = new(injectableObject)
 
 	mwi := reflect.ValueOf(m.Instance)
@@ -147,10 +147,10 @@ func (d *Dispatcher) parseMiddleware(m *factory.MetaData) (middleware *injectabl
 		methodHandler.method = &method
 		ma := d.parseAnnotation(mi, &method)
 		methodHandler.annotations = ma
-		mwh := annotation.FilterIn(ma, at.MiddlewareHandler{})
+		mwh := annotation.FilterIn(ma, mwHdl)
 		if len(mwh) > 0 {
 			methodHandler.hasMethodAnnotation = true
-			hdl := newHandler(d.configurableFactory, middleware, methodHandler, at.MiddlewareHandler{})
+			hdl := newHandler(d.configurableFactory, middleware, methodHandler, mwHdl)
 			methodHandler.handler = Handler(func(c context.Context) {
 				hdl.call(c)
 			})
@@ -187,7 +187,12 @@ func (d *Dispatcher) parseRestController(ctl *factory.MetaData) (restController 
 	if af != nil {
 		customizedControllerPath = true
 		ann := af.Field.Value.Interface().(at.RequestMapping)
-		pathPrefix = path.Join(pathPrefix, ann.AtValue)
+		// ignore context path
+		if ann.AtNoContextPath {
+			pathPrefix = ann.AtValue
+		} else {
+			pathPrefix = path.Join(pathPrefix, ann.AtValue)
+		}
 	}
 
 	// parse method
@@ -251,6 +256,10 @@ func (d *Dispatcher) parseRestController(ctl *factory.MetaData) (restController 
 		m, p := webutils.GetHttpMethod(restMethod.annotations)
 		if m != "" {
 			restMethod.hasMethodAnnotation = true
+			//if p == "" {
+			//	// TODO: to check why p is empty?
+			//	p = "/"
+			//}
 			reqMap.Method, reqMap.Value = m, p
 		}
 
@@ -344,10 +353,16 @@ func (d *Dispatcher) register(controllers []*factory.MetaData, middleware []*fac
 	d.methodSubscribers = d.configurableFactory.GetInstances(at.HttpMethodSubscriber{})
 
 	var mws []*injectableObject
+	var postMws []*injectableObject
 	for _, m := range middleware {
-		mw := d.parseMiddleware(m)
+		mw := d.parseMiddleware(m, at.MiddlewareHandler{})
 		if mw != nil {
 			mws = append(mws, mw)
+		}
+
+		postMw := d.parseMiddleware(m, at.MiddlewarePostHandler{})
+		if postMw != nil {
+			postMws = append(postMws, postMw)
 		}
 	}
 
@@ -377,6 +392,7 @@ func (d *Dispatcher) register(controllers []*factory.MetaData, middleware []*fac
 		atCtl := annotation.FilterIn(restController.annotations, at.UseMiddleware{})
 		for _, m := range restController.methods {
 			var handlers []iris.Handler
+			var postHandlers []iris.Handler
 
 			atCtlMth := annotation.FilterIn(m.annotations, at.UseMiddleware{})
 
@@ -388,37 +404,48 @@ func (d *Dispatcher) register(controllers []*factory.MetaData, middleware []*fac
 			// handlers = append(handlers, middleware...)
 
 			// set matched to true by default
-			if len(mws) > 0 {
-				for _, mw := range mws {
-					atMw := annotation.FilterIn(mw.annotations, at.UseMiddleware{})
-					for _, mth := range mw.methods {
-						atMwMth := annotation.FilterIn(mth.annotations, at.UseMiddleware{})
-						// check if middleware is used
-						// else skip to append this middleware
-						useMiddleware := d.useMiddleware(atMw, atMwMth, atCtl, atCtlMth)
-						if useMiddleware {
-							handlers = append(handlers, mth.handler)
-						}
-					}
-				}
-			}
+			handlers = d.appendMiddleware(mws, atCtl, atCtlMth, handlers)
+			postHandlers = d.appendMiddleware(postMws, atCtl, atCtlMth, postHandlers)
 
 			// 3. finally, handle all method handlers
-			d.handleControllerMethod(restController, m, party, handlers)
+			d.handleControllerMethod(restController, m, party, handlers, postHandlers)
 		}
 	}
 	return
 }
 
-func (d *Dispatcher) handleControllerMethod(restController *injectableObject, m *injectableMethod, party iris.Party, handlers []iris.Handler) {
+func (d *Dispatcher) appendMiddleware(mws []*injectableObject, atCtl []*annotation.Annotation, atCtlMth []*annotation.Annotation, handlers []iris.Handler) []iris.Handler {
+	if len(mws) > 0 {
+		for _, mw := range mws {
+			atMw := annotation.FilterIn(mw.annotations, at.UseMiddleware{})
+			for _, mth := range mw.methods {
+				atMwMth := annotation.FilterIn(mth.annotations, at.UseMiddleware{})
+				// check if middleware is used
+				// else skip to append this middleware
+				useMiddleware := d.useMiddleware(atMw, atMwMth, atCtl, atCtlMth)
+				if useMiddleware {
+					handlers = append(handlers, mth.handler)
+				}
+			}
+		}
+	}
+	return handlers
+}
+
+func (d *Dispatcher) handleControllerMethod(restController *injectableObject, m *injectableMethod, party iris.Party, handlers []iris.Handler, postHandlers []iris.Handler) {
 	// 3. create new handler for rest controller method
 	hdl := newHandler(d.configurableFactory, restController, m, at.HttpMethod{})
+
+	before := Handler(func(c context.Context) {
+		c.SetAnnotations(hdl.annotations)
+		c.Next()
+	})
 
 	var h iris.Handler
 	atFileServer := annotation.GetAnnotation(m.annotations, at.FileServer{})
 	if atFileServer != nil {
 		afs := atFileServer.Field.Value.Interface().(at.FileServer)
-		path := restController.pathPrefix + afs.AtValue
+		lp := restController.pathPrefix + afs.AtValue
 		h = Handler(func(c context.Context) {
 			// call controller method first
 			hdl.call(c)
@@ -426,7 +453,7 @@ func (d *Dispatcher) handleControllerMethod(restController *injectableObject, m 
 			// serve static resource
 			f, err := fs.New()
 			if err == nil {
-				c.WrapHandler(http.StripPrefix(path, http.FileServer(f)))
+				c.WrapHandler(http.StripPrefix(lp, http.FileServer(f)))
 			}
 
 			// next
@@ -438,12 +465,21 @@ func (d *Dispatcher) handleControllerMethod(restController *injectableObject, m 
 			c.Next()
 		})
 	}
-	handlers = append(handlers, h)
+
+	var finalHandlers []iris.Handler
+	finalHandlers = append(finalHandlers, before)
+	if len(handlers) != 0 {
+		finalHandlers = append(finalHandlers, handlers...)
+	}
+	finalHandlers = append(finalHandlers, h)
+	if len(postHandlers) != 0 {
+		finalHandlers = append(finalHandlers, postHandlers...)
+	}
 
 	if m.requestMapping.Method == Any {
-		party.Any(m.requestMapping.Value, handlers...)
+		party.Any(m.requestMapping.Value, finalHandlers...)
 	} else {
-		route := party.Handle(m.requestMapping.Method, m.requestMapping.Value, handlers...)
+		route := party.Handle(m.requestMapping.Method, m.requestMapping.Value, finalHandlers...)
 		route.MainHandlerName = fmt.Sprintf("%s/%s.%s", restController.pkgPath, restController.name, m.method.Name)
 	}
 

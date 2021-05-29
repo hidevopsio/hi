@@ -15,17 +15,23 @@
 package main
 
 import (
-	"hidevops.io/hiboot/examples/cli/advanced/cmd"
-	"hidevops.io/hiboot/examples/cli/advanced/config"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/cli"
-	"hidevops.io/hiboot/pkg/starter/logging"
+	"embed"
+
+	"github.com/hidevopsio/hiboot/examples/cli/advanced/cmd"
+	"github.com/hidevopsio/hiboot/examples/cli/advanced/config"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/cli"
+	"github.com/hidevopsio/hiboot/pkg/starter/logging"
 )
+
+//go:embed config/foo
+var embedFS embed.FS
 
 func main() {
 	// create new cli application and run it
 	cli.NewApplication(cmd.NewRootCommand).
-		SetProperty(logging.Level, logging.LevelWarn).
-		SetProperty(app.ProfilesInclude, config.Profile).
+		SetProperty(app.Config, &embedFS).
+		SetProperty(logging.Level, logging.LevelError).
+		SetProperty(app.ProfilesInclude, config.Profile, logging.Profile).
 		Run()
 }

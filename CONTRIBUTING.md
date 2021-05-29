@@ -28,7 +28,7 @@ Below, we outline one of the more common Git workflows that core developers use.
 
 ### Fork the main repository
 
-* Go to https://hidevops.io/hiboot
+* Go to https://github.com/hidevopsio/hiboot
 * Click the "Fork" button (at the top right)
 
 ### Clone your fork
@@ -41,7 +41,7 @@ mkdir -p $GOPATH/src/hidevops.io
 cd $GOPATH/src/hidevops.io
 git clone https://github.com/$GITHUB_USER/hiboot
 cd hiboot
-git remote add upstream 'https://hidevops.io/hiboot'
+git remote add upstream 'https://github.com/hidevopsio/hiboot'
 git config --global --add http.followRedirects 1
 ```
 
@@ -59,4 +59,4 @@ git fetch upstream
 git rebase upstream/master
 ```
 
-Note: If you have write access to the main repositories (e.g. hidevops.io/hiboot), you should modify your Git configuration so that you can't accidentally push to upstream:
+Note: If you have write access to the main repositories (e.g. github.com/hidevopsio/hiboot), you should modify your Git configuration so that you can't accidentally push to upstream:

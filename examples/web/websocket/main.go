@@ -1,11 +1,11 @@
 package main
 
 import (
-	_ "hidevops.io/hiboot/examples/web/websocket/controller"
-	_ "hidevops.io/hiboot/examples/web/websocket/service"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/starter/websocket"
+	_ "github.com/hidevopsio/hiboot/examples/web/websocket/controller"
+	_ "github.com/hidevopsio/hiboot/examples/web/websocket/service"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/starter/websocket"
 )
 
 func main() {

@@ -37,6 +37,7 @@ func (m *MockHealthClient) EXPECT() *MockHealthClientMockRecorder {
 
 // Check mocks base method
 func (m *MockHealthClient) Check(arg0 context.Context, arg1 *grpc_health_v1.HealthCheckRequest, arg2 ...grpc.CallOption) (*grpc_health_v1.HealthCheckResponse, error) {
+	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
 	for _, a := range arg2 {
 		varargs = append(varargs, a)
@@ -49,6 +50,27 @@ func (m *MockHealthClient) Check(arg0 context.Context, arg1 *grpc_health_v1.Heal
 
 // Check indicates an expected call of Check
 func (mr *MockHealthClientMockRecorder) Check(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockHealthClient)(nil).Check), varargs...)
+}
+
+// Watch mocks base method
+func (m *MockHealthClient) Watch(arg0 context.Context, arg1 *grpc_health_v1.HealthCheckRequest, arg2 ...grpc.CallOption) (grpc_health_v1.Health_WatchClient, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Watch", varargs...)
+	ret0, _ := ret[0].(grpc_health_v1.Health_WatchClient)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Watch indicates an expected call of Watch
+func (mr *MockHealthClientMockRecorder) Watch(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Watch", reflect.TypeOf((*MockHealthClient)(nil).Watch), varargs...)
 }

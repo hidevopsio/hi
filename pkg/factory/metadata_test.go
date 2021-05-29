@@ -2,9 +2,9 @@ package factory
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/system/types"
-	"hidevops.io/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/system/types"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 	"reflect"
 	"testing"
 )

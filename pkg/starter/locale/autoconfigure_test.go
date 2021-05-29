@@ -16,18 +16,19 @@ package locale
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app/fake"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/app/fake"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 	"reflect"
 	"testing"
 )
 
 func TestConfiguration(t *testing.T) {
-	c := newConfiguration(new(fake.ApplicationContext), &properties{
+	c := newConfiguration(new(fake.ApplicationContext))
+	c.Properties = &properties{
 		Default:      "en-US",
 		URLParameter: "lang",
 		LocalePath:   "config/i18n/",
-	})
+	}
 
 	t.Run("should get nil handler", func(t *testing.T) {
 		h := c.Handler()

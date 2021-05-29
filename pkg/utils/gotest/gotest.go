@@ -17,7 +17,7 @@ package gotest
 
 import (
 	"flag"
-	"hidevops.io/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
 	"os"
 	"strings"
 )

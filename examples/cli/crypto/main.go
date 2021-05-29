@@ -18,8 +18,8 @@ package main
 
 // import cli starter and fmt
 import (
-	_ "hidevops.io/hiboot/examples/cli/crypto/cmd"
-	"hidevops.io/hiboot/pkg/app/cli"
+	_ "github.com/hidevopsio/hiboot/examples/cli/crypto/cmd"
+	"github.com/hidevopsio/hiboot/pkg/app/cli"
 )
 
 // main function

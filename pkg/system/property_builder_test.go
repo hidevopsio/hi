@@ -16,9 +16,9 @@ package system
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -34,6 +34,7 @@ var customProperties = make(map[string]interface{})
 
 type StarProperties struct {
 	at.ConfigurationProperties `value:"star"`
+	at.AutoWired
 
 	Name string `json:"name"`
 	System string `json:"system"`
@@ -54,7 +55,7 @@ func TestPropertyBuilderBuild(t *testing.T) {
 	_ = b.Save(nil)
 	b.SetConfiguration(nil)
 
-	profile := os.Getenv("APP_PROFILES_ACTIVE")
+	profile := "local" //os.Getenv("APP_PROFILES_ACTIVE")
 	_, err = b.Build()
 
 	_, err = b.Build(profile)

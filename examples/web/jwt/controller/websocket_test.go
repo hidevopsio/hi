@@ -2,10 +2,10 @@ package controller
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/starter/websocket"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/starter/websocket"
 	"net/http"
 	"testing"
 )
@@ -25,9 +25,9 @@ func TestWebSocketController(t *testing.T) {
 
 	testApp.Get("/websocket").
 		WithHeader("Authorization", token).
-		Expect().Status(http.StatusOK)
+		Expect().Status(http.StatusServiceUnavailable)
 
 	testApp.Get("/websocket/status").
 		WithHeader("Authorization", token).
-		Expect().Status(http.StatusOK)
+		Expect().Status(http.StatusServiceUnavailable)
 }

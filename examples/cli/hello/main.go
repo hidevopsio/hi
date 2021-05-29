@@ -19,8 +19,8 @@ package main
 // import cli starter and fmt
 import (
 	"fmt"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/cli"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/cli"
 )
 
 // define the command

@@ -22,8 +22,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	mwjwt "github.com/iris-contrib/middleware/jwt"
 	ictx "github.com/kataras/iris/context"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/log"
 )
 
 // Middleware derived from github.com/iris-contrib/middleware/jwt/Middleware

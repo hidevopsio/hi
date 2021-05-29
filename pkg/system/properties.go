@@ -14,7 +14,7 @@
 
 package system
 
-import "hidevops.io/hiboot/pkg/at"
+import "github.com/hidevopsio/hiboot/pkg/at"
 
 // Profiles is app profiles
 // .include auto configuration starter should be included inside this slide
@@ -29,6 +29,7 @@ type Profiles struct {
 type banner struct {
 	// disable banner
 	Disabled bool `json:"disabled" default:"false"`
+	Custom string `json:"custom"`
 }
 
 type ContactInfo struct {
@@ -46,6 +47,8 @@ type License struct {
 type App struct {
 	// at.ConfigurationProperties annotation
 	at.ConfigurationProperties `value:"app" json:"-"`
+	at.AutoWired
+
 	// project name
 	Title string `json:"title,omitempty" default:"HiBoot Demo Application"`
 	// project name
@@ -57,7 +60,7 @@ type App struct {
 	// profiles
 	Profiles Profiles `json:"profiles"`
 	// banner
-	Banner banner
+	Banner banner `json:"banner"`
 	// Version
 	Version string `json:"version,omitempty" default:"${APP_VERSION:v1}"`
 	// TermsOfService
@@ -70,8 +73,10 @@ type App struct {
 type Server struct {
 	// annotation
 	at.ConfigurationProperties `value:"server" json:"-"`
+	at.AutoWired
+
 	Schemes                    []string `json:"schemes,omitempty" default:"http"`
-	Host                       string   `json:"host,omitempty" default:"localhost:8080"`
+	Host                       string   `json:"host,omitempty" default:"localhost"`
 	Port                       string   `json:"port,omitempty" default:"8080"`
 	ContextPath                string   `json:"context_path,omitempty" default:"/"`
 }
@@ -80,6 +85,7 @@ type Server struct {
 type Logging struct {
 	// annotation
 	at.ConfigurationProperties `value:"logging" json:"-"`
+	at.AutoWired
 
 	Level string `json:"level,omitempty" default:"info"`
 }

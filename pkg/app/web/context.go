@@ -15,21 +15,26 @@
 package web
 
 import (
-	"github.com/kataras/iris"
+	"net/http"
 	"sync"
 
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
+	"github.com/kataras/iris"
+
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/model"
+	"github.com/hidevopsio/hiboot/pkg/utils/mapstruct"
+	"github.com/hidevopsio/hiboot/pkg/utils/validator"
 	ctx "github.com/kataras/iris/context"
 	"github.com/kataras/iris/middleware/i18n"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/model"
-	"hidevops.io/hiboot/pkg/utils/mapstruct"
-	"hidevops.io/hiboot/pkg/utils/validator"
-	"net/http"
 )
 
 // Context Create your own custom Context, put any fields you wanna need.
 type Context struct {
 	iris.Context
+	ann interface{}
+	responses cmap.ConcurrentMap
 }
 
 //NewContext constructor of context.Context
@@ -45,7 +50,15 @@ var contextPool = sync.Pool{New: func() interface{} {
 
 func acquire(original iris.Context) *Context {
 	c := contextPool.Get().(*Context)
-	c.Context = original // set the context to the original one in order to have access to iris's implementation.
+	switch original.(type) {
+	case *Context:
+		newCtx := original.(*Context)
+		c.Context = newCtx.Context
+		c.responses = newCtx.responses
+		c.ann = newCtx.ann
+	default:
+		c.Context = original // set the context to the original one in order to have access to iris's implementation.
+	}
 	return c
 }
 
@@ -120,7 +133,8 @@ func (c *Context) Translate(format string, args ...interface{}) string {
 
 // ResponseString set response
 func (c *Context) ResponseString(data string) {
-	c.WriteString(c.translate(data))
+	//log.Infof("+++ %v : %v", c.Path(), c.translate(data))
+	_, _ = c.WriteString(c.translate(data))
 }
 
 // ResponseBody set response
@@ -145,6 +159,67 @@ func (c *Context) ResponseError(message string, code int) {
 		c.StatusCode(code)
 		c.JSON(response)
 	}
+}
+
+// SetAnnotations
+func (c *Context) SetAnnotations(ann interface{})  {
+	c.ann = ann
+}
+
+// Annotations
+func (c *Context) Annotations() interface{} {
+	return c.ann
+}
+
+// AddURLParam
+func (c *Context) SetURLParam(name, value string) {
+	q := c.Request().URL.Query()
+	if q[name] != nil {
+		q.Set(name, value)
+	} else {
+		q.Add(name, value)
+	}
+	c.Request().URL.RawQuery = q.Encode()
+}
+
+
+// AddResponse add response to a alice
+func (c *Context) AddResponse(response interface{}) {
+	if c.responses == nil {
+		c.responses = cmap.New()
+	}
+	// TODO: do we need the index of the response value?
+	name, object := factory.ParseParams(response)
+	switch response.(type) {
+	case error:
+		c.responses.Set("error", object)
+	default:
+		if name == "" {
+			// assume that name == "" means it is nil error
+			c.responses.Set("error", response)
+		} else {
+			c.responses.Set(name, response)
+		}
+	}
+
+	return
+}
+
+// GetResponses get all responses as a slice
+func (c *Context) GetResponses() (responses map[string]interface{}) {
+	if c.responses != nil {
+		responses = c.responses.Items()
+	}
+	return
+}
+
+// GetResponse get specific response from a slice
+func (c *Context) GetResponse(object interface{}) (response interface{}, ok bool) {
+	name, _ := factory.ParseParams(object)
+	if c.responses != nil {
+		response, ok = c.responses.Get(name)
+	}
+	return
 }
 
 // RequestEx get RequestBody

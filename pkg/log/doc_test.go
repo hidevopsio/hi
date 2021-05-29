@@ -14,7 +14,7 @@
 
 package log_test
 
-import "hidevops.io/hiboot/pkg/log"
+import "github.com/hidevopsio/hiboot/pkg/log"
 
 //This example shows the log usages
 func Example() {

@@ -62,6 +62,8 @@ type HttpMethod struct {
 	Annotation
 
 	BaseAnnotation
+
+	AtNoContextPath bool `json:"-" at:"no_context_path"`
 }
 
 // BeforeMethod is the annotation that set the called before the http method of a controller

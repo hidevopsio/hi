@@ -2,33 +2,34 @@ package controller
 
 import (
 	"golang.org/x/net/context"
-	protobuf2 "hidevops.io/hiboot/examples/web/grpc/helloworld/protobuf"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/starter/grpc"
+	"github.com/hidevopsio/hiboot/examples/web/grpc/helloworld/protobuf"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc"
 )
 
 // controller
 type helloController struct {
 	// embedded at.RestController
 	at.RestController
+	at.RequestMapping `value:"/hello"`
 	// declare HelloServiceClient
-	helloServiceClient protobuf2.HelloServiceClient
+	helloServiceClient protobuf.HelloServiceClient
 }
 
 // Init inject helloServiceClient
-func newHelloController(helloServiceClient protobuf2.HelloServiceClient) *helloController {
+func newHelloController(helloServiceClient protobuf.HelloServiceClient) *helloController {
 	return &helloController{
 		helloServiceClient: helloServiceClient,
 	}
 }
 
 // GET /greeter/name/{name}
-func (c *helloController) GetByName(name string) (response string) {
+func (c *helloController) GetByName(_ struct{at.GetMapping `value:"/{name}"`}, name string) (response string) {
 
 	// call grpc server method
 	// pass context.Background() for the sake of simplicity
-	result, err := c.helloServiceClient.SayHello(context.Background(), &protobuf2.HelloRequest{Name: name})
+	result, err := c.helloServiceClient.SayHello(context.Background(), &protobuf.HelloRequest{Name: name})
 
 	// got response
 	if err == nil {
@@ -49,7 +50,7 @@ func init() {
 	//       port: 7575      # server port
 	//
 	grpc.Client("hello-world-service",
-		protobuf2.NewHelloServiceClient)
+		protobuf.NewHelloServiceClient)
 
 	// must: register Rest Controller
 	app.Register(newHelloController)

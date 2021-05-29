@@ -17,9 +17,9 @@ package web
 import (
 	"github.com/kataras/iris"
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/log"
 	"reflect"
 	"testing"
 )

@@ -3,13 +3,13 @@
 package main
 
 import (
-	_ "hidevops.io/hiboot/examples/web/swagger/greeting-server/controller"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/app/web/server"
-	"hidevops.io/hiboot/pkg/starter/actuator"
-	"hidevops.io/hiboot/pkg/starter/logging"
-	"hidevops.io/hiboot/pkg/starter/swagger"
+	_ "github.com/hidevopsio/hiboot/examples/web/swagger/greeting-server/controller"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/app/web/server"
+	"github.com/hidevopsio/hiboot/pkg/starter/actuator"
+	"github.com/hidevopsio/hiboot/pkg/starter/logging"
+	"github.com/hidevopsio/hiboot/pkg/starter/swagger"
 )
 
 const (
@@ -27,7 +27,6 @@ func init() {
 		// alternatively, you can set below properties by using SetProperty() in main, config/application.yml or program arguments to take advantage of HiBoot DI
 		//Version(version).
 		//Schemes("http", "https").
-		//Host("localhost:8080").
 		//BasePath(basePath),
 	)
 }
@@ -37,7 +36,8 @@ func main() {
 	web.NewApplication().
 		SetProperty(app.ProfilesInclude, actuator.Profile, logging.Profile, swagger.Profile).
 		SetProperty(app.Version, version).
-		SetProperty(server.Host, "localhost:8080").
+		SetProperty(server.Host, "localhost").
+		SetProperty(server.Port, "8080").
 		SetProperty(server.ContextPath, basePath).
 		Run()
 }

@@ -11,35 +11,38 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//go:generate protoc -I ./helloworld --go_out=plugins=grpc:./helloworld ./helloworld/helloworld.proto
 
 package grpc_test
 
 import (
 	"github.com/golang/mock/gomock"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc/helloworld"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc/mockgrpc"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"google.golang.org/grpc/health/grpc_health_v1"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/starter/grpc"
-	"hidevops.io/hiboot/pkg/starter/grpc/mockgrpc"
 	"testing"
 )
 
 // gRpc server
 // server is used to implement helloworld.GreeterServer.
-type greeterServerService struct{}
+type greeterServerService struct{
+	helloworld.UnimplementedGreeterServer
+}
 
 // newGreeterServerService is the constructor of greeterServerService
-func newGreeterServerService() *greeterServerService {
+func newGreeterServerService() helloworld.GreeterServer {
 	return &greeterServerService{}
 }
 
 // SayHello implements helloworld.GreeterServer
-func (s *greeterServerService) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
-	return &helloworld.HelloReply{Message: "Hello " + in.Name}, nil
+func (s *greeterServerService) SayHello(ctx context.Context, req *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
+	return &helloworld.HelloReply{Message: "Hello " + req.Name}, nil
 }
 
 // gRpc client
@@ -87,7 +90,7 @@ func TestGrpcServerAndClient(t *testing.T) {
 		assert.NotEqual(t, nil, cc)
 		prop := new(grpc.ClientProperties)
 		f.InjectDefaultValue(prop)
-		grpcCli, err := cc.Connect("", helloworld.NewGreeterClient, prop)
+		grpcCli, err := cc.ConnectWithName("", helloworld.NewGreeterClient, prop)
 		assert.Equal(t, nil, err)
 		assert.NotEqual(t, nil, grpcCli)
 	})

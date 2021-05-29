@@ -29,10 +29,10 @@ package depends
 import (
 	"errors"
 	"fmt"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/log"
 
 	"github.com/deckarep/golang-set"
-	"hidevops.io/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory"
 	"reflect"
 )
 

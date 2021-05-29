@@ -16,8 +16,8 @@ package swagger
 
 import (
 	"github.com/go-openapi/spec"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/system"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/system"
 )
 
 type ApiInfoBuilderInterface interface {
@@ -35,6 +35,7 @@ type ApiInfoBuilderInterface interface {
 	Schemes(values ...string) ApiInfoBuilderInterface
 	Host(values string) ApiInfoBuilderInterface
 	BasePath(values string) ApiInfoBuilderInterface
+	Redoc(value string) ApiInfoBuilderInterface
 }
 
 type Contact struct {
@@ -50,10 +51,12 @@ type License struct {
 
 type apiInfoBuilder struct {
 	at.ConfigurationProperties `value:"swagger"`
+	at.AutoWired
 	spec.Swagger
 
 	SystemServer *system.Server
 	AppVersion   string `value:"${app.version}"`
+	RedocURL string `json:"redoc_url" value:"${redoc.url:https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js}"`
 }
 
 func ApiInfoBuilder() ApiInfoBuilderInterface {
@@ -159,5 +162,10 @@ func (b *apiInfoBuilder) LicenseURL(value string) ApiInfoBuilderInterface {
 func (b *apiInfoBuilder) License(value License) ApiInfoBuilderInterface {
 	b.LicenseName(value.Name)
 	b.LicenseURL(value.URL)
+	return b
+}
+
+func (b *apiInfoBuilder) Redoc(value string) ApiInfoBuilderInterface {
+	b.RedocURL = value
 	return b
 }

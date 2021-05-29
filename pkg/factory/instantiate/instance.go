@@ -2,8 +2,8 @@ package instantiate
 
 import (
 	"fmt"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
 )
 
 type instance struct {

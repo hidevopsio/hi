@@ -3,22 +3,24 @@ package jaeger
 import (
 	"context"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/opentracing/opentracing-go/log"
-	"github.com/stretchr/testify/assert"
-	"github.com/uber/jaeger-client-go/config"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/at"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/opentracing/opentracing-go/log"
+	"github.com/stretchr/testify/assert"
+	"github.com/uber/jaeger-client-go/config"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/at"
 )
 
 func TestConfiguration(t *testing.T) {
-	c := newConfiguration(&properties{
+	c := newConfiguration()
+	c.Properties = &properties{
 		Config:                  config.Configuration{
 			ServiceName:         "test",
 			Disabled:            false,
@@ -30,7 +32,7 @@ func TestConfiguration(t *testing.T) {
 			BaggageRestrictions: nil,
 			Throttler:           nil,
 		},
-	})
+	}
 	assert.NotEqual(t, nil, c)
 
 	tracer := c.Tracer()

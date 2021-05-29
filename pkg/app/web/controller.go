@@ -15,7 +15,7 @@
 package web
 
 import (
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/at"
 )
 
 // Controller is the web base controller

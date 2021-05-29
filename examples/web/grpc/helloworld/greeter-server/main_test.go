@@ -2,16 +2,19 @@ package main
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
-	protobuf2 "hidevops.io/hiboot/examples/web/grpc/helloworld/protobuf"
+	"sync"
 	"testing"
-	"time"
+
+	"github.com/stretchr/testify/assert"
+	protobuf2 "github.com/hidevopsio/hiboot/examples/web/grpc/helloworld/protobuf"
 )
 
-func TestRunMain(t *testing.T) {
-	go main()
+var mu sync.Mutex
 
-	time.Sleep(time.Second)
+func TestRunMain(t *testing.T) {
+	mu.Lock()
+	go main()
+	mu.Unlock()
 }
 
 func TestHelloServer(t *testing.T) {

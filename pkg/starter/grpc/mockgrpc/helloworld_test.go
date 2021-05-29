@@ -16,10 +16,10 @@ package mockgrpc
 
 import (
 	"github.com/golang/mock/gomock"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc/helloworld"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/examples/helloworld/helloworld"
 	"testing"
 	"time"
 )

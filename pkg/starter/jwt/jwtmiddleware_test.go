@@ -16,8 +16,8 @@ package jwt_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/starter/jwt"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/starter/jwt"
 	"testing"
 	"time"
 )

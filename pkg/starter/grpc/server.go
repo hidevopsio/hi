@@ -15,12 +15,13 @@
 package grpc
 
 import (
+	"net"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/reflector"
-	"net"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 )
 
 // ServerFactory build grpc servers

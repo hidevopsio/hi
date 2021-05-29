@@ -15,7 +15,7 @@
 package system
 
 import (
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/at"
 )
 
 // Configuration is the system configuration
@@ -27,6 +27,6 @@ type Configuration struct {
 	Logging *Logging
 }
 
-func NewConfiguration(app *App, server *Server, logging *Logging) *Configuration {
-	return &Configuration{App: app, Server: server, Logging: logging}
+func NewConfiguration() *Configuration {
+	return &Configuration{}
 }

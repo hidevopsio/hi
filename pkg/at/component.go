@@ -6,3 +6,10 @@ type Component struct {
 
 	BaseAnnotation
 }
+
+// AutoWired is the annotation that auto inject instance to object
+type AutoWired struct {
+	Annotation
+
+	BaseAnnotation
+}

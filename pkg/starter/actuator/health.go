@@ -16,9 +16,9 @@
 package actuator
 
 import (
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
 )
 
 // HealthService is the interface for health check
@@ -35,7 +35,7 @@ type Health struct {
 
 type healthController struct {
 	at.RestController
-	at.RequestMapping `value:"/health"`
+	at.RequestMapping `value:"/health" no_context_path:"true"`
 
 	configurableFactory factory.ConfigurableFactory
 }

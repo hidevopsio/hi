@@ -17,12 +17,12 @@ package inject
 import (
 	"errors"
 	"fmt"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/inject/annotation"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/reflector"
-	"hidevops.io/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
 	"reflect"
 	"strings"
 )
@@ -121,7 +121,7 @@ func (i *inject) IntoAnnotations(annotations *annotation.Annotations) (err error
 	// inject annotation
 	for _, a := range annotations.Items {
 		err = annotation.Inject(a)
-		if err == nil {
+		if err == nil && a.Field.Value.IsValid() {
 			err = i.IntoObjectValue(a.Field.Value.Addr(), "")
 		}
 	}
@@ -245,12 +245,14 @@ func (i *inject) IntoObjectValue(object reflect.Value, property string, tags ...
 		}
 
 		// assign value to struct field
-		if injectedObject != nil && fieldObjValue.CanSet() {
-			fov := i.convert(f, injectedObject)
-			if fov.Type().AssignableTo(fieldObjValue.Type()) {
-				fieldObjValue.Set(fov)
-			//} else {
-			//	log.Errorf("unmatched type %v against %v", fov.Type(), fieldObj.Type())
+		if ft.Kind() != reflect.Struct || annotation.Contains(injectedObject, at.AutoWired{}) {
+			if injectedObject != nil && fieldObjValue.CanSet() {
+				fov := i.convert(f, injectedObject)
+				if fov.Type().AssignableTo(fieldObjValue.Type()) {
+					fieldObjValue.Set(fov)
+					//} else {
+					//	log.Errorf("unmatched type %v against %v", fov.Type(), fieldObj.Type())
+				}
 			}
 		}
 
@@ -265,10 +267,10 @@ func (i *inject) IntoObjectValue(object reflect.Value, property string, tags ...
 	}
 
 	//inject property set
-	if atFields := annotation.FindAll(object, at.ConfigurationProperties{}); len(atFields) > 0 {
-		obj := object.Interface()
-		err = i.factory.Builder().Load(obj)
-	}
+	//if atFields := annotation.FindAll(object, at.ConfigurationProperties{}); len(atFields) > 0 {
+	//	obj := object.Interface()
+	//	err = i.factory.Builder().Load(obj)
+	//}
 	return err
 }
 
@@ -288,7 +290,11 @@ func (i *inject) parseFuncOrMethodInput(inType reflect.Type) (paramValue reflect
 
 			// if it is not found, then create new instance
 			paramValue = reflect.New(inType)
-			inst = paramValue.Interface()
+			if annotation.IsAnnotation(inType) {
+				inst = paramValue.Elem().Interface()
+			} else {
+				inst = paramValue.Interface()
+			}
 			// TODO: inTypeName
 			i.factory.SetInstance(inst)
 		}
@@ -346,13 +352,21 @@ func (i *inject) IntoMethod(object interface{}, m interface{}) (retVal interface
 			numIn := method.Type.NumIn()
 			inputs := make([]reflect.Value, numIn)
 			inputs[0] = reflect.ValueOf(object)
+			var ann interface{}
 			for n := 1; n < numIn; n++ {
 				fnInType := method.Type.In(n)
+				if annotation.IsAnnotation(fnInType) {
+					ann = fnInType
+				}
 				val, ok := i.parseFuncOrMethodInput(fnInType)
 				if ok {
 					inputs[n] = val
 				} else {
-					return nil, fmt.Errorf("%v is not injected", fnInType.Name())
+					if reflect.TypeOf(at.AllowNil{}) == ann || annotation.Contains(ann, at.AllowNil{}) {
+						inputs[n] = reflect.Zero(fnInType)
+					} else {
+						return nil, fmt.Errorf("%v is not injected", fnInType.Name())
+					}
 				}
 
 				paramObject := reflect.Indirect(val)

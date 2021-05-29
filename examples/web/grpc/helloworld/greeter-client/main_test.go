@@ -15,12 +15,15 @@
 package main
 
 import (
+	"sync"
 	"testing"
-	"time"
 )
 
-func TestRunMain(t *testing.T) {
-	go main()
+var mu sync.Mutex
 
-	time.Sleep(time.Second)
+func TestRunMain(t *testing.T) {
+	mu.Lock()
+	go main()
+	mu.Unlock()
+
 }

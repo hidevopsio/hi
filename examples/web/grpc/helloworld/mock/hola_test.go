@@ -19,8 +19,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	protobuf2 "hidevops.io/hiboot/examples/web/grpc/helloworld/protobuf"
-	mockproto "hidevops.io/hiboot/pkg/starter/grpc/mockgrpc"
+	protobuf2 "github.com/hidevopsio/hiboot/examples/web/grpc/helloworld/protobuf"
+	mockproto "github.com/hidevopsio/hiboot/pkg/starter/grpc/mockgrpc"
 	"testing"
 	"time"
 )

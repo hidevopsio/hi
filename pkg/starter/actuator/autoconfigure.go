@@ -16,8 +16,8 @@
 package actuator
 
 import (
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/at"
 )
 
 const (
@@ -27,6 +27,7 @@ const (
 
 type properties struct {
 	at.ConfigurationProperties `value:"actuator"`
+	at.AutoWired
 }
 
 type configuration struct {
@@ -35,10 +36,10 @@ type configuration struct {
 	Properties *properties
 }
 
-func newConfiguration(properties *properties) *configuration {
-	return &configuration{Properties: properties}
+func newConfiguration() *configuration {
+	return &configuration{}
 }
 
 func init() {
-	app.Register(newConfiguration, new(properties))
+	app.Register(newConfiguration)
 }

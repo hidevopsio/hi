@@ -1,7 +1,7 @@
 language: go
 
 go:
-- "1.11.x"
+- "1.16.x"
 
 git:
   depth: 1
@@ -11,7 +11,7 @@ branches:
   - master
   - v2
 
-go_import_path: hidevops.io/hiboot
+go_import_path: github.com/hidevopsio/hiboot
 
 env:
 - GO111MODULE=on APP_PROFILES_ACTIVE=local GOPROXY=https://goproxy.cn
@@ -19,7 +19,7 @@ env:
 install: true
 
 script:
-- env GO111MODULE=on go test -v ./... -coverprofile=coverage.out -covermode=atomic
+- env GO111MODULE=on go test -p 1 -v ./... -coverprofile=coverage.out -covermode=atomic
 
 after_success:
 - bash <(curl -s https://codecov.io/bash) -t ${CODECOV_TOKEN}

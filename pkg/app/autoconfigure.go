@@ -15,9 +15,9 @@
 package app
 
 import (
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
 	"reflect"
 )
 
@@ -65,6 +65,11 @@ func appendParams(container []*factory.MetaData, params ...interface{}) (retVal 
 		retVal, err = appendParam(retVal, params...)
 	}
 	return
+}
+
+// IncludeProfiles include specific profiles
+func IncludeProfiles(profiles ...string)  {
+	Profiles = append(Profiles, profiles...)
 }
 
 // Register register a struct instance or constructor (func), so that it will be injectable.

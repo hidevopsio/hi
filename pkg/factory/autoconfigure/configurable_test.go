@@ -15,24 +15,27 @@
 package autoconfigure_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/factory/autoconfigure"
-	"hidevops.io/hiboot/pkg/factory/instantiate"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/cmap"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory/autoconfigure"
+	"github.com/hidevopsio/hiboot/pkg/factory/instantiate"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
+	"github.com/stretchr/testify/assert"
 )
 
 type FakeProperties struct {
 	at.ConfigurationProperties `value:"fake"`
+	at.AutoWired
 
 	Name     string `default:"foo"`
 	Nickname string `default:"foobar"`
@@ -80,6 +83,7 @@ func newUnsupportedConfiguration(fakeProperties *FakeProperties) *unsupportedCon
 
 type fooProperties struct {
 	at.ConfigurationProperties `value:"foo"`
+	at.AutoWired
 
 	Name     string `default:"${fake.name}"`
 	Nickname string `default:"foobar"`
@@ -88,6 +92,7 @@ type fooProperties struct {
 
 type foobarProperties struct {
 	at.ConfigurationProperties `value:"foobar"`
+	at.AutoWired
 
 	Name     string `default:"${fake.name}"`
 	Nickname string `default:"foobar"`
@@ -97,6 +102,7 @@ type foobarProperties struct {
 
 type barProperties struct {
 	at.ConfigurationProperties `value:"bar"`
+	at.AutoWired
 
 	Name     string `default:"${fake.name}"`
 	Nickname string `default:"foobar"`
@@ -418,7 +424,7 @@ func TestConfigurableFactory(t *testing.T) {
 	var err error
 
 	// backup profile
-	profile := os.Getenv(autoconfigure.EnvAppProfilesActive)
+	profile := "default" //os.Getenv(autoconfigure.EnvAppProfilesActive)
 	t.Run("should build app config", func(t *testing.T) {
 		os.Setenv(autoconfigure.EnvAppProfilesActive, "")
 		sc, err := f.BuildProperties()
@@ -542,4 +548,50 @@ func TestReplacer(t *testing.T) {
 		assert.Equal(t, "bar", fooProp.Username)
 		assert.Equal(t, "foo", fooProp.Name)
 	})
+}
+
+var doneSch = make(chan bool)
+
+type myService struct {
+	at.EnableScheduling
+
+	count int
+}
+
+func newMyService() *myService {
+	return &myService{count: 10}
+}
+
+//_ struct{at.Scheduler `limit:"10"`}
+func (s *myService) Run(_ struct{at.Scheduled `every:"200" unit:"milliseconds"`}) (done bool) {
+	log.Info("Running Scheduler Task")
+
+	if s.count <= 0 {
+		done = true
+		doneSch <- true
+	}
+	s.count--
+
+	return
+}
+
+type controller struct {
+	at.RestController
+}
+
+func (c *controller) Get() string {
+	return "Hello scheduler"
+}
+
+
+func TestScheduler(t *testing.T) {
+	app.Register(newMyService)
+	testApp := web.NewTestApp(t, new(controller)).Run(t)
+
+
+	t.Run("scheduler", func(t *testing.T) {
+		testApp.Get("/").Expect().Status(http.StatusOK)
+	})
+
+	log.Infof("scheduler is done: %v", <- doneSch)
 }

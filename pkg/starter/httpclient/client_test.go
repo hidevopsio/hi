@@ -416,7 +416,7 @@ func TestHTTPClientGetReturnsErrorOnClientCallFailure(t *testing.T) {
 
 	require.Nil(t, response)
 
-	assert.Equal(t, "Get : unsupported protocol scheme \"\"", err.Error())
+	assert.Equal(t, "Get \"\": unsupported protocol scheme \"\"", err.Error())
 }
 
 func TestHTTPClientGetReturnsNoErrorOn5xxFailure(t *testing.T) {
@@ -442,7 +442,7 @@ func TestHTTPClientGetReturnsErrorOnFailure(t *testing.T) {
 	client := NewClient(WithHTTPTimeout(10 * time.Millisecond))
 
 	response, err := client.Get("url_doenst_exist", http.Header{})
-	require.EqualError(t, err, "Get url_doenst_exist: unsupported protocol scheme \"\"")
+	require.EqualError(t, err, "Get \"url_doenst_exist\": unsupported protocol scheme \"\"")
 	require.Nil(t, response)
 
 }
@@ -499,26 +499,26 @@ func TestHTTPClientOnFailure(t *testing.T) {
 	c := NewClient()
 	t.Run("should get error when the url is unsupported on Get", func(t *testing.T) {
 		_, err := c.Get("::", nil)
-		require.EqualError(t, err, "GET - request creation failed: parse ::: missing protocol scheme")
+		require.EqualError(t, err, "GET - request creation failed: parse \"::\": missing protocol scheme")
 	})
 	t.Run("should get error when the url is unsupported on Put", func(t *testing.T) {
 		_, err := c.Put("::", nil, nil)
-		require.EqualError(t, err, "PUT - request creation failed: parse ::: missing protocol scheme")
+		require.EqualError(t, err, "PUT - request creation failed: parse \"::\": missing protocol scheme")
 
 	})
 	t.Run("should get error when the url is unsupported on Post", func(t *testing.T) {
 		_, err := c.Post("::", nil, nil)
-		require.EqualError(t, err, "POST - request creation failed: parse ::: missing protocol scheme")
+		require.EqualError(t, err, "POST - request creation failed: parse \"::\": missing protocol scheme")
 
 	})
 	t.Run("should get error when the url is unsupported on Delete", func(t *testing.T) {
 		_, err := c.Delete("::", nil)
-		require.EqualError(t, err, "DELETE - request creation failed: parse ::: missing protocol scheme")
+		require.EqualError(t, err, "DELETE - request creation failed: parse \"::\": missing protocol scheme")
 
 	})
 	t.Run("should get error when the url is unsupported on Patch", func(t *testing.T) {
 		_, err := c.Patch("::", nil, nil)
-		require.EqualError(t, err, "PATCH - request creation failed: parse ::: missing protocol scheme")
+		require.EqualError(t, err, "PATCH - request creation failed: parse \"::\": missing protocol scheme")
 
 	})
 

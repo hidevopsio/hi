@@ -2,7 +2,7 @@ package cli
 
 import (
 	"bytes"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/log"
 	"testing"
 )
 

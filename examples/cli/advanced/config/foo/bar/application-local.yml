@@ -1,0 +1,8 @@
+# config file for testing
+
+
+logging:
+  level: error
+
+magic:
+  number: 888

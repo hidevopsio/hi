@@ -1,0 +1,13 @@
+# config file for testing
+# filename should be application.yml
+
+app:
+  project: hidevopsio
+  name: hiboot
+
+logging:
+  level: debug
+
+config:
+  enabled: true
+  name: bar

@@ -14,7 +14,7 @@
 
 package model
 
-import "hidevops.io/hiboot/pkg/at"
+import "github.com/hidevopsio/hiboot/pkg/at"
 
 var (
 	// RequestTypeBody means it is RequestBody

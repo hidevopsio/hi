@@ -18,26 +18,29 @@ package app
 import (
 	"errors"
 	"fmt"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/factory/autoconfigure"
-	"hidevops.io/hiboot/pkg/factory/instantiate"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/system"
-	"hidevops.io/hiboot/pkg/utils/cmap"
-	"hidevops.io/hiboot/pkg/utils/io"
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory/autoconfigure"
+	"github.com/hidevopsio/hiboot/pkg/factory/instantiate"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/system"
+	"github.com/hidevopsio/hiboot/pkg/system/scheduler"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 )
 
 const (
 	// ApplicationContextName is the application context instance name
-	ApplicationContextName = "app.applicationContext"
-	ContextPathFormat = "server.context_path_format"
-	ContextPathFormatKebab = "kebab"
-	ContextPathFormatSnake = "snake"
-	ContextPathFormatCamel = "camel"
+	ApplicationContextName      = "app.applicationContext"
+	ContextPathFormat           = "server.context_path_format"
+	ContextPathFormatKebab      = "kebab"
+	ContextPathFormatSnake      = "snake"
+	ContextPathFormatCamel      = "camel"
 	ContextPathFormatLowerCamel = "lower-camel"
 )
 
@@ -72,11 +75,15 @@ type BaseApplication struct {
 	mu                  sync.Mutex
 	// SetAddCommandLineProperties
 	addCommandLineProperties bool
+
+	schedulers []*scheduler.Scheduler
 }
 
 var (
 	configContainer    []*factory.MetaData
 	componentContainer []*factory.MetaData
+	// Profiles include profiles initially
+	Profiles           []string
 
 	// ErrInvalidObjectType indicates that configuration type is invalid
 	ErrInvalidObjectType = errors.New("[app] invalid Configuration type, one of app.Configuration need to be embedded")
@@ -86,7 +93,7 @@ ______  ____________             _____
 ___  / / /__(_)__  /_______________  /_
 __  /_/ /__  /__  __ \  __ \  __ \  __/   
 _  __  / _  / _  /_/ / /_/ / /_/ / /_     Hiboot Application Framework
-/_/ /_/  /_/  /_.___/\____/\____/\__/     https://hidevops.io/hiboot
+/_/ /_/  /_/  /_.___/\____/\____/\__/     https://github.com/hidevopsio/hiboot
 
 `
 )
@@ -94,7 +101,11 @@ _  __  / _  / _  /_/ / /_/ / /_/ / /_     Hiboot Application Framework
 // PrintStartupMessages prints startup messages
 func (a *BaseApplication) PrintStartupMessages() {
 	if !a.systemConfig.App.Banner.Disabled {
-		fmt.Print(banner)
+		if a.systemConfig.App.Banner.Custom != "" {
+			fmt.Print(a.systemConfig.App.Banner.Custom)
+		} else {
+			fmt.Print(banner)
+		}
 	}
 }
 
@@ -163,6 +174,10 @@ func (a *BaseApplication) BuildConfigurations() (err error) {
 	a.configurableFactory.Build(configContainer)
 	// build components
 	err = a.configurableFactory.BuildComponents()
+
+	// Start Scheduler after build
+	schedulerServices := a.configurableFactory.GetInstances(at.EnableScheduling{})
+	a.schedulers = a.configurableFactory.StartSchedulers(schedulerServices)
 
 	return
 }

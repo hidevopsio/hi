@@ -16,18 +16,22 @@
 package main
 
 import (
-	"hidevops.io/hiboot/pkg/app/web"
 	"net/http"
+	"sync"
 	"testing"
-	"time"
+
+	"github.com/hidevopsio/hiboot/pkg/app/web"
 )
 
-func TestRunMain(t *testing.T) {
-	go main()
-}
+var mu sync.Mutex
+//func TestRunMain(t *testing.T) {
+//	mu.Lock()
+//	go main()
+//	mu.Unlock()
+//}
 
 func TestController(t *testing.T) {
-	time.Sleep(time.Second)
+	mu.Lock()
 	testApp := web.NewTestApp(t).SetProperty("server.context_path", "/router-example").Run(t)
 
 	t.Run("should send post request to user", func(t *testing.T) {
@@ -62,4 +66,5 @@ func TestController(t *testing.T) {
 			Expect().Status(http.StatusOK)
 
 	})
+	mu.Unlock()
 }

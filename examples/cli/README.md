@@ -10,7 +10,7 @@ package main
 
 // import cli starter and fmt
 import (
-	"hidevops.io/hiboot/pkg/starter/cli"
+	"github.com/hidevopsio/hiboot/pkg/starter/cli"
 	"github.com/manifoldco/promptui"
 	"fmt"
 )

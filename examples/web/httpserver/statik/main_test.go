@@ -1,14 +1,17 @@
 package main
 
 import (
-	"hidevops.io/hiboot/pkg/app/web"
 	"net/http"
+	"sync"
 	"testing"
-	"time"
+
+	"github.com/hidevopsio/hiboot/pkg/app/web"
 )
+var mu sync.Mutex
 
 func TestController(t *testing.T) {
-	testApp := web.NewTestApp(t).Run(t)
+	mu.Lock()
+	testApp := web.NewTestApp(t).SetProperty("server.port", "8081").Run(t)
 
 	t.Run("should get index.html ", func(t *testing.T) {
 		testApp.Get("/public/ui").
@@ -19,9 +22,12 @@ func TestController(t *testing.T) {
 		testApp.Get("/public/ui/hello.txt").
 			Expect().Status(http.StatusOK)
 	})
+	mu.Unlock()
 }
 
+
 func TestRunMain(t *testing.T) {
+	mu.Lock()
 	go main()
-	time.Sleep(100 * time.Millisecond)
+	mu.Unlock()
 }

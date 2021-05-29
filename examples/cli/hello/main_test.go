@@ -17,19 +17,23 @@ package main
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app/cli"
+	"github.com/hidevopsio/hiboot/pkg/app/cli"
+	"sync"
 	"testing"
 )
 
+var mu sync.Mutex
 func TestRunMain(t *testing.T) {
+	mu.Lock()
 	go main()
+	mu.Unlock()
 }
 
 func TestHelloCommands(t *testing.T) {
 	testApp := cli.NewTestApplication(t, newRootCommand)
 
 	t.Run("should run hello command", func(t *testing.T) {
-		_, err := testApp.Run("--to", "hiboot")
+		_, err := testApp.Run("--to", "${app.name}-cmd")
 		assert.Equal(t, nil, err)
 	})
 }

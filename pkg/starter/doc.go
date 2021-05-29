@@ -24,7 +24,7 @@ then Hiboot auto-configures an database bolt for any service to inject.
 You need to opt-in to auto-configuration by embedding app.Configuration in your configuration and
 calling the app.Register() function inside the init() function of your configuration pkg.
 
-For more details, see https://godoc.org/hidevops.io/hiboot/pkg/starter
+For more details, see https://godoc.org/github.com/hidevopsio/hiboot/pkg/starter
 
 Creating Your Own Starter
 

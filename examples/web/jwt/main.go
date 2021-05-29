@@ -15,13 +15,13 @@
 package main
 
 import (
-	_ "hidevops.io/hiboot/examples/web/jwt/controller"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/starter/actuator"
-	"hidevops.io/hiboot/pkg/starter/jwt"
-	"hidevops.io/hiboot/pkg/starter/logging"
-	"hidevops.io/hiboot/pkg/starter/websocket"
+	_ "github.com/hidevopsio/hiboot/examples/web/jwt/controller"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/starter/actuator"
+	"github.com/hidevopsio/hiboot/pkg/starter/jwt"
+	"github.com/hidevopsio/hiboot/pkg/starter/logging"
+	"github.com/hidevopsio/hiboot/pkg/starter/websocket"
 )
 
 func main() {

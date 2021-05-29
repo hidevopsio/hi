@@ -16,12 +16,12 @@ package jwt
 
 import (
 	"crypto/rsa"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/log"
 	"time"
 
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 	"io/ioutil"
 )
 

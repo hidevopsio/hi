@@ -3,17 +3,14 @@
 
 package protobuf
 
-/*
-target package name
-*/
-
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -25,7 +22,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The request message containing the user's name.
 type HelloRequest struct {
@@ -39,16 +36,17 @@ func (m *HelloRequest) Reset()         { *m = HelloRequest{} }
 func (m *HelloRequest) String() string { return proto.CompactTextString(m) }
 func (*HelloRequest) ProtoMessage()    {}
 func (*HelloRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_helloworld_ddbc9c942d6b2c79, []int{0}
+	return fileDescriptor_17b8c58d586b62f2, []int{0}
 }
+
 func (m *HelloRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_HelloRequest.Unmarshal(m, b)
 }
 func (m *HelloRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_HelloRequest.Marshal(b, m, deterministic)
 }
-func (dst *HelloRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HelloRequest.Merge(dst, src)
+func (m *HelloRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HelloRequest.Merge(m, src)
 }
 func (m *HelloRequest) XXX_Size() int {
 	return xxx_messageInfo_HelloRequest.Size(m)
@@ -78,16 +76,17 @@ func (m *HelloReply) Reset()         { *m = HelloReply{} }
 func (m *HelloReply) String() string { return proto.CompactTextString(m) }
 func (*HelloReply) ProtoMessage()    {}
 func (*HelloReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_helloworld_ddbc9c942d6b2c79, []int{1}
+	return fileDescriptor_17b8c58d586b62f2, []int{1}
 }
+
 func (m *HelloReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_HelloReply.Unmarshal(m, b)
 }
 func (m *HelloReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_HelloReply.Marshal(b, m, deterministic)
 }
-func (dst *HelloReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HelloReply.Merge(dst, src)
+func (m *HelloReply) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HelloReply.Merge(m, src)
 }
 func (m *HelloReply) XXX_Size() int {
 	return xxx_messageInfo_HelloReply.Size(m)
@@ -117,16 +116,17 @@ func (m *HolaRequest) Reset()         { *m = HolaRequest{} }
 func (m *HolaRequest) String() string { return proto.CompactTextString(m) }
 func (*HolaRequest) ProtoMessage()    {}
 func (*HolaRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_helloworld_ddbc9c942d6b2c79, []int{2}
+	return fileDescriptor_17b8c58d586b62f2, []int{2}
 }
+
 func (m *HolaRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_HolaRequest.Unmarshal(m, b)
 }
 func (m *HolaRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_HolaRequest.Marshal(b, m, deterministic)
 }
-func (dst *HolaRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HolaRequest.Merge(dst, src)
+func (m *HolaRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HolaRequest.Merge(m, src)
 }
 func (m *HolaRequest) XXX_Size() int {
 	return xxx_messageInfo_HolaRequest.Size(m)
@@ -156,16 +156,17 @@ func (m *HolaReply) Reset()         { *m = HolaReply{} }
 func (m *HolaReply) String() string { return proto.CompactTextString(m) }
 func (*HolaReply) ProtoMessage()    {}
 func (*HolaReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_helloworld_ddbc9c942d6b2c79, []int{3}
+	return fileDescriptor_17b8c58d586b62f2, []int{3}
 }
+
 func (m *HolaReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_HolaReply.Unmarshal(m, b)
 }
 func (m *HolaReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_HolaReply.Marshal(b, m, deterministic)
 }
-func (dst *HolaReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HolaReply.Merge(dst, src)
+func (m *HolaReply) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HolaReply.Merge(m, src)
 }
 func (m *HolaReply) XXX_Size() int {
 	return xxx_messageInfo_HolaReply.Size(m)
@@ -188,6 +189,28 @@ func init() {
 	proto.RegisterType((*HelloReply)(nil), "protobuf.HelloReply")
 	proto.RegisterType((*HolaRequest)(nil), "protobuf.HolaRequest")
 	proto.RegisterType((*HolaReply)(nil), "protobuf.HolaReply")
+}
+
+func init() { proto.RegisterFile("helloworld.proto", fileDescriptor_17b8c58d586b62f2) }
+
+var fileDescriptor_17b8c58d586b62f2 = []byte{
+	// 244 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x90, 0x4d, 0x4b, 0x03, 0x31,
+	0x10, 0x86, 0x5d, 0x10, 0xdb, 0x9d, 0x7a, 0x90, 0xf8, 0x41, 0xe9, 0x49, 0x03, 0x4a, 0x4f, 0x23,
+	0xd4, 0x83, 0xe0, 0xb1, 0x88, 0x14, 0x41, 0x28, 0xed, 0xcd, 0x5b, 0x76, 0x3b, 0xb6, 0x8b, 0xb3,
+	0x4e, 0x4c, 0xfa, 0xe1, 0xfe, 0x7b, 0xd9, 0xb4, 0xa1, 0x45, 0x61, 0x4f, 0x99, 0xbc, 0x79, 0xf3,
+	0xf0, 0x30, 0x70, 0xb6, 0x20, 0x66, 0xd9, 0x88, 0xe3, 0x19, 0x5a, 0x27, 0x4b, 0x51, 0xed, 0x70,
+	0x64, 0xab, 0x0f, 0xad, 0xe1, 0x74, 0x54, 0xbf, 0x4e, 0xe8, 0x7b, 0x45, 0x7e, 0xa9, 0x14, 0x1c,
+	0x7f, 0x99, 0x92, 0xba, 0xc9, 0x75, 0xd2, 0x4f, 0x27, 0x61, 0xd6, 0x77, 0x00, 0xbb, 0x8e, 0xe5,
+	0x4a, 0x75, 0xa1, 0x55, 0x92, 0xf7, 0x66, 0x1e, 0x4b, 0xf1, 0xaa, 0x6f, 0xa0, 0x33, 0x12, 0x36,
+	0x4d, 0xa8, 0x5b, 0x48, 0xb7, 0x95, 0x46, 0xd2, 0xe0, 0x75, 0x67, 0x35, 0x25, 0xb7, 0x2e, 0x72,
+	0x52, 0x4f, 0xd0, 0x9e, 0x9a, 0x2a, 0x44, 0xea, 0x0a, 0xa3, 0x3c, 0x1e, 0x9a, 0xf7, 0x2e, 0xfe,
+	0xe5, 0x96, 0x2b, 0x7d, 0x34, 0x78, 0xd9, 0x5a, 0x45, 0xd4, 0x23, 0xb4, 0x6a, 0x94, 0xb0, 0x51,
+	0x97, 0x07, 0x3f, 0xf6, 0xde, 0xbd, 0xf3, 0xbf, 0x71, 0xe0, 0x0c, 0x9f, 0xa1, 0x5f, 0x08, 0x2e,
+	0x8a, 0x19, 0xad, 0xc5, 0x7a, 0xa4, 0x1f, 0x53, 0x5a, 0x26, 0x8f, 0x1b, 0xca, 0x70, 0xee, 0x6c,
+	0x8e, 0xfb, 0x2d, 0x0f, 0xd3, 0x37, 0xc9, 0x3f, 0xc7, 0x35, 0x65, 0x9c, 0xbc, 0x77, 0x10, 0xef,
+	0x23, 0x31, 0x3b, 0x09, 0xd3, 0xc3, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x3f, 0x7f, 0x6f, 0x7c,
+	0x94, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -227,6 +250,14 @@ func (c *helloServiceClient) SayHello(ctx context.Context, in *HelloRequest, opt
 type HelloServiceServer interface {
 	// Sends a hello greeting
 	SayHello(context.Context, *HelloRequest) (*HelloReply, error)
+}
+
+// UnimplementedHelloServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedHelloServiceServer struct {
+}
+
+func (*UnimplementedHelloServiceServer) SayHello(ctx context.Context, req *HelloRequest) (*HelloReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
 }
 
 func RegisterHelloServiceServer(s *grpc.Server, srv HelloServiceServer) {
@@ -295,6 +326,14 @@ type HolaServiceServer interface {
 	SayHola(context.Context, *HolaRequest) (*HolaReply, error)
 }
 
+// UnimplementedHolaServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedHolaServiceServer struct {
+}
+
+func (*UnimplementedHolaServiceServer) SayHola(ctx context.Context, req *HolaRequest) (*HolaReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SayHola not implemented")
+}
+
 func RegisterHolaServiceServer(s *grpc.Server, srv HolaServiceServer) {
 	s.RegisterService(&_HolaService_serviceDesc, srv)
 }
@@ -328,25 +367,4 @@ var _HolaService_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "helloworld.proto",
-}
-
-func init() { proto.RegisterFile("helloworld.proto", fileDescriptor_helloworld_ddbc9c942d6b2c79) }
-
-var fileDescriptor_helloworld_ddbc9c942d6b2c79 = []byte{
-	// 225 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0xc8, 0x48, 0xcd, 0xc9,
-	0xc9, 0x2f, 0xcf, 0x2f, 0xca, 0x49, 0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x00, 0x53,
-	0x49, 0xa5, 0x69, 0x4a, 0x4a, 0x5c, 0x3c, 0x1e, 0x20, 0xd9, 0xa0, 0xd4, 0xc2, 0xd2, 0xd4, 0xe2,
-	0x12, 0x21, 0x21, 0x2e, 0x96, 0xbc, 0xc4, 0xdc, 0x54, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20,
-	0x30, 0x5b, 0x49, 0x8d, 0x8b, 0x0b, 0xaa, 0xa6, 0x20, 0xa7, 0x52, 0x48, 0x82, 0x8b, 0x3d, 0x37,
-	0xb5, 0xb8, 0x38, 0x31, 0x1d, 0xa6, 0x08, 0xc6, 0x55, 0x52, 0xe4, 0xe2, 0xf6, 0xc8, 0xcf, 0x49,
-	0xc4, 0x67, 0x94, 0x2a, 0x17, 0x27, 0x44, 0x09, 0x5e, 0x93, 0x8c, 0xbc, 0xa0, 0xae, 0x0a, 0x4e,
-	0x2d, 0x2a, 0xcb, 0x4c, 0x4e, 0x15, 0xb2, 0xe2, 0xe2, 0x08, 0x4e, 0xac, 0x04, 0x0b, 0x09, 0x89,
-	0xe9, 0xc1, 0x1c, 0xaf, 0x87, 0xec, 0x72, 0x29, 0x11, 0x0c, 0xf1, 0x82, 0x9c, 0x4a, 0x25, 0x06,
-	0x23, 0x37, 0x88, 0xab, 0x60, 0x46, 0x99, 0x73, 0xb1, 0x83, 0x8c, 0xca, 0xcf, 0x49, 0x14, 0x12,
-	0x45, 0xd2, 0x81, 0x70, 0xb7, 0x94, 0x30, 0xba, 0x30, 0xd8, 0x1c, 0x27, 0x03, 0x2e, 0xe9, 0xcc,
-	0x7c, 0xbd, 0xf4, 0xa2, 0x82, 0x64, 0xbd, 0xd4, 0x8a, 0xc4, 0xdc, 0x82, 0x9c, 0xd4, 0x62, 0x3d,
-	0x44, 0xc0, 0x3a, 0xf1, 0x83, 0x2d, 0x0d, 0x07, 0xb1, 0x03, 0x40, 0xda, 0x03, 0x18, 0x93, 0xd8,
-	0xc0, 0xe6, 0x18, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x83, 0x96, 0x55, 0x0c, 0x80, 0x01, 0x00,
-	0x00,
 }

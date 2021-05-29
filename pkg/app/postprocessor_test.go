@@ -15,9 +15,9 @@
 package app
 
 import (
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/factory/instantiate"
-	"hidevops.io/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory/instantiate"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
 	"testing"
 )
 

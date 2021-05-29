@@ -1,9 +1,10 @@
 package mockgrpc
 
 import (
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/examples/helloworld/helloworld"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc/helloworld"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRpcMsg(t *testing.T) {
@@ -14,7 +15,7 @@ func TestRpcMsg(t *testing.T) {
 	assert.Equal(t, false, ok)
 
 	rpcMsg.Message = req
-	assert.Equal(t, "is name:\"unit_test\" ", rpcMsg.String())
+	assert.Contains(t, rpcMsg.Message.String(), "unit_test", )
 
 	ok = rpcMsg.Matches(req)
 	assert.Equal(t, true, ok)

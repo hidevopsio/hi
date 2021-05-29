@@ -15,10 +15,11 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "io.grpc.examples.helloworld";
-option java_outer_classname = "HelloWorldProto";
-
+option java_package = "io.hidevops.examples.web.grpc.helloworld";
+option java_outer_classname = "MockProto";
+option go_package = "../protobuf";
 // target package name
+
 package protobuf;
 
 // The greeting service definition.

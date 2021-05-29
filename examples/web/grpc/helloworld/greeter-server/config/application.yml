@@ -12,3 +12,14 @@ app:
 
 logging:
   level: info
+#
+#jaeger:
+#  config:
+#    serviceName: ${app.name}
+#    sampler:
+#      type: const
+#      param: 1
+#    reporter:
+#      logSpans: true
+#      localAgentHostPort: jaeger-agent.istio-system:6831
+#      bufferFlushInterval: 1000000

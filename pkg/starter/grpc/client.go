@@ -1,10 +1,10 @@
 package grpc
 
 import (
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/mapstruct"
-	"hidevops.io/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/mapstruct"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 )
 
 // ClientFactory build grpc clients
@@ -23,7 +23,7 @@ func newClientFactory(instantiateFactory factory.InstantiateFactory, properties 
 		prop := new(ClientProperties)
 		err := mapstruct.Decode(prop, clientProps[cli.name])
 		if err == nil {
-			gRPCCli, err = cc.Connect(cli.name, cli.cb, prop)
+			gRPCCli, err = cc.ConnectWithName(cli.name, cli.cb, prop)
 			if err == nil {
 				clientInstanceName := reflector.GetLowerCamelFullName(gRPCCli)
 				// register grpc client

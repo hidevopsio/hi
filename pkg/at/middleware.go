@@ -14,6 +14,13 @@ type MiddlewareHandler struct {
 	BaseAnnotation
 }
 
+// MiddlewarePostHandler is the annotation that annotate the controller or method use middleware
+type MiddlewarePostHandler struct {
+	Annotation
+
+	BaseAnnotation
+}
+
 // UseMiddleware is the annotation that that annotate the controller or method use middleware based on condition
 type UseMiddleware struct {
 	Annotation

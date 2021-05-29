@@ -19,28 +19,32 @@ package web_test
 import (
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	_ "hidevops.io/hiboot/pkg/app/web/statik"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/inject/annotation"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/model"
-	"hidevops.io/hiboot/pkg/starter/locale"
+	"sync"
 
-	//_ "hidevops.io/hiboot/pkg/starter/actuator"
-	"hidevops.io/hiboot/pkg/starter/jwt"
-	_ "hidevops.io/hiboot/pkg/starter/locale"
-	"hidevops.io/hiboot/pkg/starter/logging"
-	_ "hidevops.io/hiboot/pkg/starter/logging"
-	"hidevops.io/hiboot/pkg/utils/io"
-	"hidevops.io/hiboot/pkg/utils/reflector"
+	"github.com/stretchr/testify/assert"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	_ "github.com/hidevopsio/hiboot/pkg/app/web/statik"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/model"
+	"github.com/hidevopsio/hiboot/pkg/starter/locale"
+
+	//_ "github.com/hidevopsio/hiboot/pkg/starter/actuator"
+	"github.com/hidevopsio/hiboot/pkg/starter/jwt"
+	_ "github.com/hidevopsio/hiboot/pkg/starter/locale"
+	"github.com/hidevopsio/hiboot/pkg/starter/logging"
+	_ "github.com/hidevopsio/hiboot/pkg/starter/logging"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 	"net/http"
 	"testing"
 	"time"
 )
+
+var mu sync.Mutex
 
 type UserRequest struct {
 	model.RequestBody
@@ -211,6 +215,10 @@ func (c *FooController) GetById(id int) string {
 
 // GET /hello
 func (c *FooController) GetHello(ctx context.Context) string {
+	log.Debug(ctx.Annotations())
+	ctx.SetURLParam("foo", "bar")
+	ctx.SetURLParam("foo", "baz")
+	log.Debug(ctx.URLParam("foo"))
 	log.Debug("FooController.GetHello")
 	return "hello"
 }
@@ -285,6 +293,17 @@ func (c *FooController) GetRequestForm(request *FooRequestForm) string {
 	return request.Name
 }
 
+type EmbeddedParam struct {
+	Name string `json:"name"`
+}
+
+// TODO: embedded query param does not work
+type EmbeddedFooRequestParams struct {
+	at.RequestParams
+	EmbeddedParam
+}
+
+// TODO: embedded query param does not work
 type FooRequestParams struct {
 	at.RequestParams
 	Name string `json:"name"`
@@ -430,7 +449,7 @@ func (c *oneTwoThreeController) Get() string {
 }
 
 func TestOneTwoThreeController(t *testing.T) {
-
+	mu.Lock()
 	testData := []struct {
 		format string
 		path   string
@@ -463,6 +482,7 @@ func TestOneTwoThreeController(t *testing.T) {
 				Expect().Status(http.StatusOK)
 		})
 	}
+	mu.Unlock()
 }
 
 // Define our controller, start with the name Foo, the first word of the Camelcase FooController is the controller name
@@ -495,6 +515,7 @@ func (c *HelloViewController) AnyTest() string {
 }
 
 func TestWebViewApplicationWithProperties(t *testing.T) {
+	mu.Lock()
 	testApp := web.NewTestApp(newHelloViewController).
 		SetProperty("web.view.enabled", true).
 		Run(t)
@@ -503,9 +524,11 @@ func TestWebViewApplicationWithProperties(t *testing.T) {
 			Get("/").
 			Expect().Status(http.StatusOK)
 	})
+	mu.Unlock()
 }
 
 func TestWebViewApplicationWithArgs(t *testing.T) {
+	mu.Lock()
 	testApp := web.NewTestApp(newHelloViewController).
 		SetProperty("server.port", 8080).
 		SetProperty("web.view.enabled", true).
@@ -521,9 +544,11 @@ func TestWebViewApplicationWithArgs(t *testing.T) {
 			Get("/test").
 			Expect().Status(http.StatusOK)
 	})
+	mu.Unlock()
 }
 
 func TestApplicationWithoutController(t *testing.T) {
+	mu.Lock()
 	testApp := web.NewTestApp().
 		Run(t)
 
@@ -532,6 +557,7 @@ func TestApplicationWithoutController(t *testing.T) {
 			Get("/").
 			Expect().Status(http.StatusNotFound)
 	})
+	mu.Unlock()
 }
 
 type circularFoo struct {
@@ -565,6 +591,7 @@ func newCircularDiController(circularFoo *circularFoo) *circularDiController {
 }
 
 func TestApplicationWithCircularDI(t *testing.T) {
+	mu.Lock()
 	testApp := web.NewTestApp(newCircularDiController).
 		Run(t)
 
@@ -573,9 +600,11 @@ func TestApplicationWithCircularDI(t *testing.T) {
 			Get("/").
 			Expect().Status(http.StatusNotFound)
 	})
+	mu.Unlock()
 }
 
 func TestWebApplication(t *testing.T) {
+	mu.Lock()
 	foo := &Foo{Name: "test injection"}
 	app.Register(foo)
 	testApp := web.NewTestApp(newHelloController, newFooController, newBarController, newFoobarController).
@@ -875,6 +904,7 @@ func TestWebApplication(t *testing.T) {
 		testApp.Get("/foo/error").
 			Expect().Status(http.StatusInternalServerError)
 	})
+	mu.Unlock()
 }
 
 //func TestInvalidController(t *testing.T)  {
@@ -885,7 +915,7 @@ func TestWebApplication(t *testing.T) {
 //}
 
 func TestNewApplication(t *testing.T) {
-
+	mu.Lock()
 	app.Register(new(ExampleController))
 
 	testApp := web.NewApplication().
@@ -909,9 +939,11 @@ func TestNewApplication(t *testing.T) {
 
 	go testApp.Run()
 	time.Sleep(time.Second)
+	mu.Unlock()
 }
 
 func TestAnonymousController(t *testing.T) {
+	mu.Lock()
 	t.Run("should failed to register anonymous controller", func(t *testing.T) {
 		testApp := web.RunTestApplication(t, (*Bar)(nil))
 		assert.NotEqual(t, nil, testApp)
@@ -921,6 +953,7 @@ func TestAnonymousController(t *testing.T) {
 		testApp := web.RunTestApplication(t, newBar)
 		assert.NotEqual(t, nil, testApp)
 	})
+	mu.Unlock()
 }
 
 type fakeConditionalJwtMiddleware struct {
@@ -977,7 +1010,17 @@ func newFooMiddleware() *fooMiddleware {
 
 // Logging is the middleware handler,it support dependency injection, method annotation
 // middleware handler can be annotated to specific purpose or general purpose
-func (m *fooMiddleware) Logging( at struct{at.MiddlewareHandler `value:"/" `}, ctx context.Context) {
+func (m *fooMiddleware) Logging( _ struct{at.MiddlewareHandler `value:"/" `}, ctx context.Context) {
+
+	log.Infof("[logging middleware] %v", ctx.GetCurrentRoute())
+
+	// call ctx.Next() if you want to continue, otherwise do not call it
+	ctx.Next()
+	return
+}
+// Logging is the middleware handler,it support dependency injection, method annotation
+// middleware handler can be annotated to specific purpose or general purpose
+func (m *fooMiddleware) PostLogging( _ struct{at.MiddlewarePostHandler `value:"/" `}, ctx context.Context) {
 
 	log.Infof("[logging middleware] %v", ctx.GetCurrentRoute())
 
@@ -1090,15 +1133,16 @@ func (c *regularTestController) Get(at struct{ at.GetMapping `value:"/"` }) stri
 }
 
 func TestCustomRouter(t *testing.T) {
+	mu.Lock()
 	app.Register(newFooMiddleware)
 	testApp := web.NewTestApp(newCustomRouterController).
 		SetProperty("server.context_path", "/test").
 		Run(t)
-
-	testApp.Get("/test/custom/123/name/hiboot").Expect().Status(http.StatusOK)
 	testApp.Get("/test/custom/0/name/hiboot").Expect().Status(http.StatusNotFound)
+	testApp.Get("/test/custom/123/name/hiboot").Expect().Status(http.StatusOK)
 	testApp.Get("/test/custom/1/name/hiboot").Expect().Status(http.StatusInternalServerError)
 	testApp.Get("/test/custom/2/name/hiboot").Expect().Status(http.StatusOK)
+	mu.Unlock()
 }
 
 // test HttpMethodSubscriber
@@ -1115,6 +1159,7 @@ func (s *fakeSubscriber) Subscribe(atc *annotation.Annotations, atm *annotation.
 }
 
 func TestMiddlewareAnnotation(t *testing.T) {
+	mu.Lock()
 	app.Register(
 		newCustomRouterController,
 		newFooMiddleware,
@@ -1163,7 +1208,7 @@ func TestMiddlewareAnnotation(t *testing.T) {
 		testApp.Delete("/jwt-auth").
 			Expect().Status(http.StatusUnauthorized)
 	})
-
+	mu.Unlock()
 }
 
 // --- test file server
@@ -1192,7 +1237,9 @@ func (c *publicTestController) NotFound(at struct{ at.GetMapping `value:"/foo"`;
 }
 
 func TestController(t *testing.T) {
-	testApp := web.NewTestApp(t, newPublicTestController).Run(t)
+	mu.Lock()
+	testApp := web.NewTestApp(t, newPublicTestController).
+		SetProperty("server.port", "8085").Run(t)
 
 	t.Run("should get index.html ", func(t *testing.T) {
 		testApp.Get("/public/ui").
@@ -1208,4 +1255,5 @@ func TestController(t *testing.T) {
 		testApp.Get("/public/foo").
 			Expect().Status(http.StatusNotFound)
 	})
+	mu.Unlock()
 }

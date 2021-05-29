@@ -15,7 +15,7 @@
 package app
 
 import (
-	"hidevops.io/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory"
 )
 
 // PostProcessor is the post processor

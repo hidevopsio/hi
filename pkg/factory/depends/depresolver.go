@@ -16,10 +16,10 @@
 package depends
 
 import (
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/system/types"
-	"hidevops.io/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/system/types"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
 	"reflect"
 )
 
@@ -102,8 +102,8 @@ func Resolve(data []*factory.MetaData) (result []*factory.MetaData, err error) {
 		resolved, err = dep.Resolve()
 
 		if err != nil {
-			log.Errorf("Failed to resolve dependencies: %s", err)
-			displayDependencyGraph("circular dependency graph", resolved, log.Error)
+			//log.Errorf("Failed to resolve dependencies: %s", err)
+			displayDependencyGraph("missing dependency or circular dependency graph", resolved, log.Error)
 		} else {
 			log.Debugf("The dependency graph resolved successfully")
 			displayDependencyGraph("resolved dependency graph", resolved, log.Debug)

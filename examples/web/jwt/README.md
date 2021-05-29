@@ -8,8 +8,8 @@ This is the web application with JWT.
 package main
 
 import (
-	"hidevops.io/hiboot/pkg/starter/web"
-	_ "hidevops.io/hiboot/examples/web/jwt/controllers"
+	"github.com/hidevopsio/hiboot/pkg/starter/web"
+	_ "github.com/hidevopsio/hiboot/examples/web/jwt/controllers"
 )
 
 func main()  {

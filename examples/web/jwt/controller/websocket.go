@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"hidevops.io/hiboot/examples/web/jwt/service"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/starter/websocket"
+	"github.com/hidevopsio/hiboot/examples/web/jwt/service"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/starter/websocket"
 )
 
 type websocketController struct {

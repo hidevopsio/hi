@@ -16,13 +16,13 @@ package depends_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/factory/depends"
-	"hidevops.io/hiboot/pkg/factory/depends/bar"
-	"hidevops.io/hiboot/pkg/factory/depends/fake"
-	"hidevops.io/hiboot/pkg/factory/depends/foo"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory/depends"
+	"github.com/hidevopsio/hiboot/pkg/factory/depends/bar"
+	"github.com/hidevopsio/hiboot/pkg/factory/depends/fake"
+	"github.com/hidevopsio/hiboot/pkg/factory/depends/foo"
+	"github.com/hidevopsio/hiboot/pkg/log"
 	"reflect"
 	"testing"
 )

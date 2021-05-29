@@ -17,24 +17,25 @@ package web
 import (
 	"errors"
 	"fmt"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/inject/annotation"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/model"
-	"hidevops.io/hiboot/pkg/utils/mapstruct"
-	"hidevops.io/hiboot/pkg/utils/reflector"
-	"hidevops.io/hiboot/pkg/utils/replacer"
-	"hidevops.io/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/model"
+	"github.com/hidevopsio/hiboot/pkg/utils/mapstruct"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/utils/replacer"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
 	"net/http"
 	"reflect"
 	"strings"
 )
 
 const (
-	success = "success"
-	failed  = "failed"
+	success       = "success"
+	failed        = "failed"
+	finalResponse = "finalResponse"
 )
 
 var (
@@ -57,13 +58,14 @@ type request struct {
 }
 
 type response struct {
-	typeName string
-	name     string
-	kind     reflect.Kind
-	typ      reflect.Type
-	isResponseBody bool
-	implementsResponse bool
+	typeName               string
+	name                   string
+	kind                   reflect.Kind
+	typ                    reflect.Type
+	isResponseBody         bool
+	implementsResponse     bool
 	implementsResponseInfo bool
+	value                  interface{}
 }
 
 type handler struct {
@@ -84,6 +86,7 @@ type handler struct {
 
 	injectableObject *injectableObject
 	restMethod       *injectableMethod
+	annotations      interface{}
 }
 
 type requestSet struct {
@@ -205,6 +208,10 @@ func (h *handler) parseMethod(injectableObject *injectableObject, injectableMeth
 			// TODO: should confirm if value is usable
 			h.requests[i].iVal = injectableMethod.annotations.Items[0].Parent.Value //ann.Parent.Value.Elem()
 			h.requests[i].isAnnotation = true
+
+			// operation
+			_ = annotation.InjectAll(request)
+			h.annotations = request
 			continue
 		}
 
@@ -270,96 +277,145 @@ func (h *handler) parseMethod(injectableObject *injectableObject, injectableMeth
 	}
 }
 
-func (h *handler) responseData(ctx context.Context, numOut int, results []reflect.Value) (err error) {
-	//if numOut == 0 {
-	//	ctx.StatusCode(http.StatusOK)
-	//	return
-	//}
 
+func (h *handler) buildResponse(ctx context.Context, data interface{}) {
+	if len(h.responses) > 0 {
+		res := &response{
+			typeName: h.responses[0].typeName,
+			typ: h.responses[0].typ,
+			name: h.responses[0].name,
+			kind: h.responses[0].kind,
+			isResponseBody: h.responses[0].isResponseBody,
+			implementsResponse: h.responses[0].implementsResponse,
+			implementsResponseInfo: h.responses[0].implementsResponseInfo,
+			value: data,
+		}
+		h.addResponse(ctx, res)
+	}
+}
+
+func (h *handler) responseData(ctx context.Context, numOut int, results []reflect.Value) (err error) {
 	result := results[0]
 	if !result.CanInterface() {
 		err = ErrCanNotInterface
-		ctx.ResponseError(err.Error(), http.StatusInternalServerError)
+		h.buildResponse(ctx, err)
 		return
 	}
 
-	respVal := result.Interface()
-	if respVal == nil {
+	responseObj := result.Interface()
+	if responseObj == nil {
 		//log.Warn("response is nil")
 		err = fmt.Errorf("response is nil")
 		return
 	}
+	h.addResponse(ctx, responseObj)
 
-	switch respVal.(type) {
+	switch responseObj.(type) {
 	case string:
-		ctx.ResponseString(result.Interface().(string))
+		h.buildResponse(ctx, result.Interface().(string))
 	case error:
 		respErr := result.Interface().(error)
-		ctx.ResponseError(respErr.Error(), http.StatusInternalServerError)
+		h.buildResponse(ctx, respErr)
 	case model.Response:
-		response := respVal.(model.Response)
-		if numOut >= 2 {
-			var respErr error
-			errVal := results[1]
-			if errVal.IsNil() {
-				respErr = nil
-			} else if errVal.Type().Name() == "error" {
-				respErr = results[1].Interface().(error)
-			}
-
-			if respErr == nil {
-				response.SetCode(http.StatusOK)
-				response.SetMessage(ctx.Translate(success))
-			} else {
-				if response.GetCode() == 0 {
-					response.SetCode(http.StatusInternalServerError)
-				}
-				// TODO: output error message directly? how about i18n
-				response.SetMessage(ctx.Translate(respErr.Error()))
-
-				// TODO: configurable status code in application.yml
-				ctx.StatusCode(response.GetCode())
-			}
-		}
-		ctx.JSON(response)
+		h.responseWithError(ctx, numOut, results, responseObj)
 	case map[string]interface{}:
-		ctx.JSON(respVal)
+		h.buildResponse(ctx, responseObj)
 	default:
 		if h.responses[0].implementsResponseInfo {
-			response := respVal.(model.ResponseInfo)
-			if numOut >= 2 {
-				var respErr error
-				errVal := results[1]
-				if errVal.IsNil() {
-					respErr = nil
-				} else if errVal.Type().Name() == "error" {
-					respErr = results[1].Interface().(error)
-				}
-
-				if respErr == nil {
-					if response.GetCode() == 0 {
-						response.SetCode(http.StatusOK)
-					}
-					if response.GetMessage() == "" {
-						response.SetMessage(ctx.Translate(success))
-					}
-				} else {
-					if response.GetCode() == 0 {
-						response.SetCode(http.StatusInternalServerError)
-					}
-					// TODO: output error message directly? how about i18n
-					response.SetMessage(ctx.Translate(respErr.Error()))
-
-					// TODO: configurable status code in application.yml
-				}
-			}
-			ctx.StatusCode(response.GetCode())
-			ctx.JSON(response)
+			h.responseWithError(ctx, numOut, results, responseObj)
 		} else {
-			ctx.JSON(respVal)
+			h.buildResponse(ctx, responseObj)
 		}
 	}
 	return
+}
+
+func (h *handler) finalizeResponse(ctx context.Context) {
+
+	idx, size := ctx.HandlerIndex(-1), len(ctx.Handlers())-1
+
+	if idx == size {
+		resObj, ok := ctx.GetResponse(new(response))
+		// TODO: find out the root cause of strings type being called twice
+		done := ctx.Values().GetString("done") == "true"
+		if !done && ok {
+			//log.Debugf("%v / %v", idx, size)
+			ctx.Values().Set("done", "true")
+			res := resObj.(*response)
+			switch res.value.(type) {
+			case string:
+				ctx.ResponseString(res.value.(string))
+			case error:
+				respErr := res.value.(error)
+				ctx.ResponseError(respErr.Error(), http.StatusInternalServerError)
+			case model.Response:
+				r := res.value.(model.Response)
+				ctx.StatusCode(r.GetCode())
+				_, _ = ctx.JSON(r)
+			case model.ResponseInfo:
+				r := res.value.(model.ResponseInfo)
+				ctx.StatusCode(r.GetCode())
+				_, _ = ctx.JSON(r)
+			case map[string]interface{}:
+				_, _ = ctx.JSON(res.value)
+			default:
+				_, _ = ctx.JSON(res.value)
+			}
+		}
+	}
+	return
+}
+
+func (h *handler) addResponse(ctx context.Context, responseObj interface{}) {
+
+	if len(h.responses) > 0 {
+		ctx.AddResponse(responseObj)
+	}
+
+}
+
+func (h *handler) responseWithError(ctx context.Context, numOut int, results []reflect.Value, responseObj interface{}) {
+	response := responseObj.(model.ResponseInfo)
+	if numOut >= 2 {
+		var respErr error
+		errVal := results[1]
+		errObj := results[1].Interface()
+
+		if errVal.IsNil() {
+			respErr = nil
+			h.addResponse(ctx, respErr)
+		} else if errVal.Type().Name() == "error" {
+			respErr = errObj.(error)
+			h.addResponse(ctx, errObj)
+		}
+
+		if respErr == nil {
+			if response.GetCode() == 0 {
+				response.SetCode(http.StatusOK)
+			}
+			if response.GetMessage() == "" {
+				response.SetMessage(ctx.Translate(success))
+			}
+		} else {
+			h.setErrorResponseCode(ctx, response)
+			// TODO: output error message directly? how about i18n
+			response.SetMessage(ctx.Translate(respErr.Error()))
+
+			// TODO: configurable status code in application.yml
+		}
+	}
+	h.buildResponse(ctx, response)
+}
+
+func (h *handler) setErrorResponseCode(ctx context.Context, response model.ResponseInfo) {
+	if response.GetCode() == 0 {
+		prevStatusCode := ctx.GetStatusCode()
+		if prevStatusCode == http.StatusOK || prevStatusCode == 0 {
+			response.SetCode(http.StatusInternalServerError)
+		} else {
+			response.SetCode(prevStatusCode)
+		}
+	}
 }
 
 func (h *handler) call(ctx context.Context) {
@@ -377,7 +433,13 @@ func (h *handler) call(ctx context.Context) {
 	}
 
 	if len(h.dependencies) > 0 {
-		runtimeInstance, _ = h.factory.InjectContextAwareObjects(ctx, h.dependencies)
+		var err error
+		prevStatusCode := ctx.GetStatusCode()
+		runtimeInstance, err = h.factory.InjectContextAwareObjects(ctx, h.dependencies)
+		currStatusCode := ctx.GetStatusCode()
+		if err != nil || currStatusCode != prevStatusCode {
+			return
+		}
 	}
 	inputs := make([]reflect.Value, h.numIn)
 	if h.numIn != 0 {
@@ -437,6 +499,9 @@ func (h *handler) call(ctx context.Context) {
 			_ = h.responseData(ctx, h.numOut, results)
 		}
 	}
+
+	// finalize response
+	h.finalizeResponse(ctx)
 }
 
 func (h *handler) decodePathVariable(lenOfPathParams *int, pvs []string, req request, kind reflect.Kind) reflect.Value {

@@ -17,17 +17,17 @@ package web
 import (
 	"errors"
 	"fmt"
-	"github.com/kataras/iris"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/io"
-	"hidevops.io/hiboot/pkg/utils/str"
 	"net/http"
 	"os"
 	"regexp"
 	"time"
+
+	"github.com/kataras/iris"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 )
 
 const (
@@ -112,6 +112,18 @@ func (a *application) Run() {
 	}
 }
 
+func unique(intSlice []string) []string {
+	keys := make(map[string]bool)
+	list := []string{}
+	for _, entry := range intSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
+
 // Init init web application
 func (a *application) build() (err error) {
 
@@ -121,9 +133,9 @@ func (a *application) build() (err error) {
 	a.PrintStartupMessages()
 
 	systemConfig := a.SystemConfig()
-	if !str.InSlice(Profile, systemConfig.App.Profiles.Include) {
-		systemConfig.App.Profiles.Include = append(systemConfig.App.Profiles.Include, Profile)
-	}
+	// should do deduplication
+	systemConfig.App.Profiles.Include = append(systemConfig.App.Profiles.Include, app.Profiles...)
+	systemConfig.App.Profiles.Include = unique(systemConfig.App.Profiles.Include)
 	if systemConfig != nil {
 		log.Infof("Starting Hiboot web application %v version %v on localhost with PID %v", systemConfig.App.Name, systemConfig.App.Version, os.Getpid())
 		log.Infof("Working directory: %v", a.WorkDir)

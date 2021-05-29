@@ -16,16 +16,16 @@ package inject_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/factory/autoconfigure"
-	"hidevops.io/hiboot/pkg/factory/instantiate"
-	"hidevops.io/hiboot/pkg/inject"
-	"hidevops.io/hiboot/pkg/inject/annotation"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/cmap"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory/autoconfigure"
+	"github.com/hidevopsio/hiboot/pkg/factory/instantiate"
+	"github.com/hidevopsio/hiboot/pkg/inject"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -33,6 +33,7 @@ import (
 )
 
 type User struct {
+	at.AutoWired
 	Name string
 	App  string
 }
@@ -41,6 +42,8 @@ type fakeRepository struct {
 }
 
 type fakeProperties struct {
+	at.ConfigurationProperties `value:"fake"`
+	at.AutoWired
 	DefVarSlice   []string `default:"${app.name}"`
 	DefProfiles   []string `default:"${app.profiles.include}"`
 	Name          string   `default:"should not inject this default value as it will inject by system.Builder"`
@@ -67,7 +70,7 @@ type fakeProperties struct {
 
 type fooProperties struct {
 	at.ConfigurationProperties `value:"foo"`
-
+	at.AutoWired
 	Name string `default:"foo"`
 }
 
@@ -76,8 +79,8 @@ type fakeConfiguration struct {
 	FakeProperties *fakeProperties
 }
 
-func newFakeConfiguration(properties *fakeProperties) *fakeConfiguration {
-	return &fakeConfiguration{FakeProperties: properties}
+func newFakeConfiguration() *fakeConfiguration {
+	return &fakeConfiguration{}
 }
 
 type fakeDataSource struct {
@@ -87,6 +90,7 @@ type FakeRepository interface {
 }
 
 type FooUser struct {
+	at.AutoWired
 	Name string
 }
 
@@ -173,11 +177,13 @@ type userService struct {
 }
 
 type PropTestUser struct {
+	at.AutoWired
 	Name string
 	App  string
 }
 
 type PropFooUser struct {
+	at.AutoWired
 	Name string
 }
 
@@ -395,8 +401,6 @@ func setUp(t *testing.T) factory.ConfigurableFactory {
 		configurations)
 	cf.BuildProperties()
 
-	cf.SetInstance(new(fooProperties))
-	cf.SetInstance(new(fakeProperties))
 	configs := []*factory.MetaData{
 		factory.NewMetaData(newFakeConfiguration),
 		factory.NewMetaData(new(fooConfiguration)),
@@ -410,28 +414,27 @@ func setUp(t *testing.T) factory.ConfigurableFactory {
 func TestInject(t *testing.T) {
 
 	cf := setUp(t)
-	fakeConfig := cf.Configuration("fake").(*fakeConfiguration)
-
+	fakeProperties := cf.GetInstance(fakeProperties{}).(*fakeProperties)
 	cf.SetInstance("inject_test.hello", Hello("Hello"))
 
 	t.Run("should inject default string", func(t *testing.T) {
-		assert.Equal(t, "this is default value", fakeConfig.FakeProperties.DefStrVal)
+		assert.Equal(t, "this is default value", fakeProperties.DefStrVal)
 	})
 
 	t.Run("should inject default int", func(t *testing.T) {
-		assert.Equal(t, 123, fakeConfig.FakeProperties.DefIntVal)
+		assert.Equal(t, 123, fakeProperties.DefIntVal)
 	})
 
 	t.Run("should inject default uint", func(t *testing.T) {
-		assert.Equal(t, uint(123), fakeConfig.FakeProperties.DefIntValU)
+		assert.Equal(t, uint(123), fakeProperties.DefIntValU)
 	})
 
 	t.Run("should inject default float32", func(t *testing.T) {
-		assert.Equal(t, float32(0.1), fakeConfig.FakeProperties.DefFloatVal32)
+		assert.Equal(t, float32(0.1), fakeProperties.DefFloatVal32)
 	})
 
 	t.Run("should inject default int", func(t *testing.T) {
-		assert.Equal(t, 123, fakeConfig.FakeProperties.DefIntPropVal)
+		assert.Equal(t, 123, fakeProperties.DefIntPropVal)
 	})
 
 	t.Run("should get config", func(t *testing.T) {

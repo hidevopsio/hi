@@ -2,9 +2,9 @@ package annotation_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/inject/annotation"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/log"
 	"reflect"
 	"testing"
 )
@@ -142,6 +142,17 @@ type AtArray struct {
 	at.Annotation
 
 	AtValues []string `at:"values" json:"-"`
+}
+
+type fooService struct {
+}
+
+func (s *fooService) IHaveAnnotation(_ struct{ AtFoo `value:"bar"` })  {
+
+}
+
+func (s *fooService) IDoNotHaveAnnotation()  {
+
 }
 
 func TestImplementsAnnotation(t *testing.T) {
@@ -447,6 +458,13 @@ func TestImplementsAnnotation(t *testing.T) {
 		err := annotation.InjectAll(ta)
 		assert.Equal(t, nil, err)
 		assert.Equal(t, 3, len(ta.AtValues))
+	})
+
+	t.Run("find annotated methods", func(t *testing.T) {
+		fs := new(fooService)
+		methods, annotations := annotation.FindAnnotatedMethods(fs, AtFoo{})
+		assert.Equal(t, 1, len(methods))
+		assert.Equal(t, 1, len(annotations))
 	})
 }
 

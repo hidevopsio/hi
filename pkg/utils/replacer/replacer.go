@@ -18,7 +18,7 @@ package replacer
 import (
 	"errors"
 	"fmt"
-	"hidevops.io/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 	"os"
 	"reflect"
 	"regexp"

@@ -15,9 +15,9 @@
 package inject
 
 import (
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/system"
-	"hidevops.io/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/system"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
 	"reflect"
 	"strings"
 )

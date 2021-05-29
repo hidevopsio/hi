@@ -16,9 +16,9 @@ package system
 
 import (
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -31,6 +31,7 @@ type profiles struct {
 
 type properties struct {
 	at.ConfigurationProperties `value:"app"`
+	at.AutoWired
 
 	Name string `json:"name"`
 	Profiles profiles `json:"profiles"`
@@ -54,7 +55,7 @@ func TestBuilderBuild(t *testing.T) {
 
 	testProject := "hidevopsio"
 	customProps["app.project"] = testProject
-	b := NewBuilder(NewConfiguration(new(App), new(Server), new(Logging)),
+	b := NewBuilder(NewConfiguration(),
 		filepath.Join(io.GetWorkDir(), "config"),
 		"application",
 		"yaml",

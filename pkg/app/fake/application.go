@@ -15,7 +15,7 @@
 // Package fake provides fake.ApplicationContext for unit testing
 package fake
 
-import "hidevops.io/hiboot/pkg/app/web/context"
+import "github.com/hidevopsio/hiboot/pkg/app/web/context"
 
 // ApplicationContext application context
 type ApplicationContext struct {

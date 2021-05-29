@@ -18,13 +18,13 @@ import (
 	"fmt"
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/model"
-	"hidevops.io/hiboot/pkg/starter/jwt"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/model"
+	"github.com/hidevopsio/hiboot/pkg/starter/jwt"
 	"net/http"
 	"strings"
 	"testing"
@@ -199,11 +199,3 @@ func TestJwtController(t *testing.T) {
 
 }
 
-func TestAppWithoutJwtController(t *testing.T) {
-	fooCtrl := new(fooController)
-	testApp := web.RunTestApplication(t, fooCtrl)
-	t.Run("should return http.StatusUnauthorized after GET /bar", func(t *testing.T) {
-		testApp.Get("/foo").
-			Expect().Status(http.StatusOK)
-	})
-}

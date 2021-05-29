@@ -14,7 +14,15 @@
 
 package app
 
+import "github.com/hidevopsio/hiboot/pkg/system"
+
 const (
+	// Config is the embed config
+	Config = system.Config
+
+	// ConfigDir is the embed config dir
+	ConfigDir = system.ConfigDir
+
 	// BannerDisabled is the property that allow use to enable / disable banner display on terminal
 	BannerDisabled = "app.banner.disabled"
 

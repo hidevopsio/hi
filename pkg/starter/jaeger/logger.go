@@ -1,7 +1,7 @@
 package jaeger
 
 import (
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/log"
 	"strings"
 )
 

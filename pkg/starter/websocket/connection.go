@@ -1,8 +1,8 @@
 package websocket
 
 import (
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/starter/websocket/ws"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/starter/websocket/ws"
 )
 
 // Connection is the websocket connection

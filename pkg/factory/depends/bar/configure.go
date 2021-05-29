@@ -15,7 +15,7 @@
 // Package bar is the test package for package depends
 package bar
 
-import "hidevops.io/hiboot/pkg/app"
+import "github.com/hidevopsio/hiboot/pkg/app"
 
 // Configuration foo.Configuration for test only
 type Configuration struct {

@@ -17,18 +17,18 @@ package instantiate
 
 import (
 	"errors"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/factory/depends"
-	"hidevops.io/hiboot/pkg/inject"
-	"hidevops.io/hiboot/pkg/inject/annotation"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/system"
-	"hidevops.io/hiboot/pkg/system/types"
-	"hidevops.io/hiboot/pkg/utils/cmap"
-	"hidevops.io/hiboot/pkg/utils/io"
-	"hidevops.io/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory/depends"
+	"github.com/hidevopsio/hiboot/pkg/inject"
+	"github.com/hidevopsio/hiboot/pkg/inject/annotation"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/system"
+	"github.com/hidevopsio/hiboot/pkg/system/types"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 	"path/filepath"
 )
 
@@ -80,7 +80,7 @@ func NewInstantiateFactory(instanceMap cmap.ConcurrentMap, components []*factory
 	sa := new(system.App)
 	ss := new(system.Server)
 	sl := new(system.Logging)
-	syscfg := system.NewConfiguration(sa, ss, sl)
+	syscfg := system.NewConfiguration()
 
 
 	customProps := defaultProperties.Items()
@@ -192,15 +192,15 @@ func (f *instantiateFactory) BuildComponents() (err error) {
 	log.Debugf("Injecting dependencies")
 	// then build components
 	for _, item := range resolved {
-		//log.Debugf("build component: %v", item.Type)
+		// log.Debugf("build component: %v %v", idx, item.Type)
 		if item.ContextAware {
 			//log.Debugf("at.ContextAware: %v", item.MetaObject)
-			f.SetInstance(item)
+			err = f.SetInstance(item)
 		} else {
 			// inject dependencies into function
 			// components, controllers
 			// TODO: should save the upstream dependencies that contains item.ContextAware annotation for runtime injection
-			f.injectDependency(item)
+			err = f.injectDependency(item)
 		}
 	}
 	if err == nil {

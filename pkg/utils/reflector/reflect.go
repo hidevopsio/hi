@@ -17,11 +17,12 @@ package reflector
 
 import (
 	"errors"
-	"hidevops.io/hiboot/pkg/utils/io"
-	"hidevops.io/hiboot/pkg/utils/str"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
 )
 
 var (
@@ -286,6 +287,27 @@ func HasField(object interface{}, name string) bool {
 	fv := reflect.Indirect(r).FieldByName(name)
 
 	return fv.IsValid()
+}
+
+
+// GetMethodsByAnnotation call method
+func GetMethodsByAnnotation(object interface{}, name string, args ...interface{}) (interface{}, error) {
+	objVal := reflect.ValueOf(object)
+	method, ok := objVal.Type().MethodByName(name)
+	if ok {
+		numIn := method.Type.NumIn()
+		inputs := make([]reflect.Value, numIn)
+		inputs[0] = objVal
+		for i, arg := range args {
+			inputs[i+1] = reflect.ValueOf(arg)
+		}
+		results := method.Func.Call(inputs)
+		if len(results) != 0 {
+			return results[0].Interface(), nil
+		}
+		return nil, nil
+	}
+	return nil, ErrInvalidMethod
 }
 
 // CallMethodByName call method

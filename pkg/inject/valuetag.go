@@ -16,8 +16,8 @@ package inject
 
 import (
 	"fmt"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
 	"reflect"
 )
 

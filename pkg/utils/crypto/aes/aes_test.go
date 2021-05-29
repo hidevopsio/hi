@@ -4,7 +4,7 @@ import (
 	"crypto/aes"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/utils/crypto"
+	"github.com/hidevopsio/hiboot/pkg/utils/crypto"
 	"testing"
 )
 

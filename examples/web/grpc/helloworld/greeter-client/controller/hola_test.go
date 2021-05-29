@@ -1,34 +1,35 @@
 package controller
 
 import (
-	"github.com/golang/mock/gomock"
-	mock2 "hidevops.io/hiboot/examples/web/grpc/helloworld/mock"
-	protobuf2 "hidevops.io/hiboot/examples/web/grpc/helloworld/protobuf"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/starter/grpc/mockgrpc"
-	"hidevops.io/hiboot/pkg/starter/logging"
 	"net/http"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/hidevopsio/hiboot/examples/web/grpc/helloworld/mock"
+	"github.com/hidevopsio/hiboot/examples/web/grpc/helloworld/protobuf"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/starter/grpc/mockgrpc"
+	"github.com/hidevopsio/hiboot/pkg/starter/logging"
 )
 
 func TestHolaClient(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockHolaClient := mock2.NewMockHolaServiceClient(ctrl)
+	mockHolaClient := mock.NewMockHolaServiceClient(ctrl)
 	app.Register("protobuf.holaServiceClient", mockHolaClient)
 
 	testApp := web.NewTestApp(t, newHolaController).SetProperty(logging.Level, logging.LevelDebug).Run(t)
 
-	req := &protobuf2.HolaRequest{Name: "Steve"}
+	req := &protobuf.HolaRequest{Name: "Steve"}
 
 	mockHolaClient.EXPECT().SayHola(
 		gomock.Any(),
 		&mockgrpc.RPCMsg{Message: req},
-	).Return(&protobuf2.HolaReply{Message: "Hola " + req.Name}, nil)
+	).Return(&protobuf.HolaReply{Message: "Hola " + req.Name}, nil)
 
-	testApp.Get("/hola/name/{name}").
+	testApp.Get("/hola/{name}").
 		WithPath("name", req.Name).
 		Expect().Status(http.StatusOK).
 		Body().Contains(req.Name)

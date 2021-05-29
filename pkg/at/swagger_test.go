@@ -3,7 +3,7 @@ package at_test
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/at"
 	"testing"
 )
 

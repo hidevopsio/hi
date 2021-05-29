@@ -14,7 +14,7 @@
 
 package model
 
-import "hidevops.io/hiboot/pkg/at"
+import "github.com/hidevopsio/hiboot/pkg/at"
 
 // Response is the interface of rest controller's Response
 type ResponseInfo interface {

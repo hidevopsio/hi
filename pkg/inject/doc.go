@@ -69,7 +69,7 @@ app.Component(newFooService), newFoo is the constructor of the dependency.
 Auto Configuration
 
 Auto Configuration is another cool feature that comes out of the box with Hiboot,
-for more details, please see https://godoc.org/hidevops.io/hiboot/pkg/starter
+for more details, please see https://godoc.org/github.com/hidevopsio/hiboot/pkg/starter
 
 Example
 

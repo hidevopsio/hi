@@ -15,8 +15,8 @@
 package hiboot_test
 
 import (
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/at"
 )
 
 // This is a simple hello world example

@@ -14,10 +14,11 @@
 
 package locale
 
-import "hidevops.io/hiboot/pkg/at"
+import "github.com/hidevopsio/hiboot/pkg/at"
 
 type properties struct {
 	at.ConfigurationProperties `value:"locale"`
+	at.AutoWired
 
 	Default      string `json:"default" default:"en-US"`
 	URLParameter string `json:"url_parameter" default:"lang"`

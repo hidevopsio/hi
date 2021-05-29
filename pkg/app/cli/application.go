@@ -15,7 +15,7 @@
 package cli
 
 import (
-	"hidevops.io/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app"
 	"os"
 	"path/filepath"
 	"strings"
@@ -73,9 +73,9 @@ func (a *application) build() (err error) {
 
 	// build auto configurations
 	err = a.BuildConfigurations()
-	if err != nil {
-		return
-	}
+	//if err != nil {
+	//	return
+	//}
 
 	// set root command
 	r := f.GetInstance(RootCommandName)

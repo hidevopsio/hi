@@ -17,10 +17,10 @@ package controller
 
 import (
 	"fmt"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/starter/jwt"
-	"hidevops.io/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/starter/jwt"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
 	"net/http"
 	"testing"
 	"time"

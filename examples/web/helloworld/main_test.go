@@ -16,19 +16,39 @@
 package main
 
 import (
-	"hidevops.io/hiboot/pkg/app/web"
 	"net/http"
+	"sync"
 	"testing"
 	"time"
+
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/starter/actuator"
+	"github.com/hidevopsio/hiboot/pkg/starter/swagger"
 )
 
+var mu sync.Mutex
 func TestRunMain(t *testing.T) {
+	mu.Lock()
 	go main()
+	mu.Unlock()
 }
 
 func TestController(t *testing.T) {
-	time.Sleep(time.Second)
-	web.RunTestApplication(t, new(Controller)).
+	mu.Lock()
+
+	time.Sleep(2 * time.Second)
+
+	app.Register(swagger.ApiInfoBuilder().
+		Title("HiBoot Example - Hello world").
+		Description("This is an example that demonstrate the basic usage"))
+
+	web.NewTestApp(t, new(Controller)).
+		SetProperty("server.port", "8081").
+		SetProperty(app.ProfilesInclude, swagger.Profile, web.Profile, actuator.Profile).
+		Run(t).
 		Get("/").
 		Expect().Status(http.StatusOK)
+
+	mu.Unlock()
 }

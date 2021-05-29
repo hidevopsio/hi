@@ -18,16 +18,16 @@ import (
 	"fmt"
 	"github.com/deckarep/golang-set"
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/app/web"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/factory"
-	"hidevops.io/hiboot/pkg/factory/autoconfigure"
-	"hidevops.io/hiboot/pkg/factory/instantiate"
-	"hidevops.io/hiboot/pkg/inject"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/cmap"
-	"hidevops.io/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/factory"
+	"github.com/hidevopsio/hiboot/pkg/factory/autoconfigure"
+	"github.com/hidevopsio/hiboot/pkg/factory/instantiate"
+	"github.com/hidevopsio/hiboot/pkg/inject"
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/cmap"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
 	"os"
 	"reflect"
 	"testing"
@@ -253,9 +253,13 @@ func TestInstantiateFactory(t *testing.T) {
 	})
 
 	type Greeter struct {
+		at.AutoWired
+
 		Name string `default:"Hiboot"`
 	}
-	greeter := new(Greeter)
+	greeter := &Greeter{
+		Name: "Hiboot",
+	}
 	t.Run("should inject default value", func(t *testing.T) {
 		err := instFactory.InjectDefaultValue(greeter)
 		assert.Equal(t, nil, err)
@@ -263,7 +267,7 @@ func TestInstantiateFactory(t *testing.T) {
 	})
 
 	type DevTester struct {
-		Greeter *Greeter `inject:""`
+		Greeter *Greeter
 		Home    string   `value:"${HOME}"`
 	}
 	devTester := new(DevTester)

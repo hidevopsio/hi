@@ -20,10 +20,10 @@
 package main
 
 import (
-	_ "hidevops.io/hiboot/examples/web/grpc/helloworld/greeter-client/controller"
-	"hidevops.io/hiboot/pkg/app/web"
-	_ "hidevops.io/hiboot/pkg/starter/actuator"
-	_ "hidevops.io/hiboot/pkg/starter/logging"
+	_ "github.com/hidevopsio/hiboot/examples/web/grpc/helloworld/greeter-client/controller"
+	"github.com/hidevopsio/hiboot/pkg/app/web"
+	_ "github.com/hidevopsio/hiboot/pkg/starter/actuator"
+	_ "github.com/hidevopsio/hiboot/pkg/starter/logging"
 )
 
 func main() {

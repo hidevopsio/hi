@@ -16,14 +16,15 @@
 package jaeger
 
 import (
+	"io"
+
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/uber/jaeger-client-go/config"
-	"hidevops.io/hiboot/pkg/app"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
-	"hidevops.io/hiboot/pkg/log"
-	"io"
+	"github.com/hidevopsio/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/log"
 )
 
 const (
@@ -36,23 +37,31 @@ type configuration struct {
 
 	Properties *properties
 	Closer     io.Closer
+
+	ServiceName string `value:"${app.name}"`
 }
 
 func init() {
-	app.Register(newConfiguration, new(properties))
+	app.Register(newConfiguration)
 }
 
-func newConfiguration(properties *properties) *configuration {
-	return &configuration{Properties: properties}
+func newConfiguration() *configuration {
+	return &configuration{}
 }
 
 //Tracer returns an instance of Jaeger Tracer that samples 100% of traces and logs all spans to stdout.
 func (c *configuration) Tracer() (tracer Tracer) {
 	var err error
+	if c.Properties.Config.ServiceName == "" {
+		c.Properties.Config.ServiceName = c.ServiceName
+	}
 	tracer, c.Closer, err = c.Properties.Config.NewTracer(config.Logger(&Logger{}))
-	log.Debug(err)
+	if err != nil {
+		log.Warnf("%v, so Jaeger may not work properly because of this warning", err.Error())
+		return
+	}
 	opentracing.SetGlobalTracer(tracer)
-	return tracer
+	return
 }
 
 func (c *configuration) path(ctx context.Context) (path string) {

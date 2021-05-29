@@ -19,18 +19,19 @@ package system
 import (
 	"bytes"
 	"fmt"
-	"github.com/hidevopsio/mapstructure"
-	"gopkg.in/yaml.v2"
-	"hidevops.io/hiboot/pkg/log"
-	"hidevops.io/hiboot/pkg/utils/io"
-	"hidevops.io/hiboot/pkg/utils/reflector"
-	"hidevops.io/hiboot/pkg/utils/replacer"
-	"hidevops.io/hiboot/pkg/utils/str"
-	"hidevops.io/viper"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
+
+	"github.com/hidevopsio/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/utils/io"
+	"github.com/hidevopsio/hiboot/pkg/utils/reflector"
+	"github.com/hidevopsio/hiboot/pkg/utils/replacer"
+	"github.com/hidevopsio/hiboot/pkg/utils/str"
+	"github.com/hidevopsio/mapstructure"
+	"github.com/hidevopsio/viper"
+	"gopkg.in/yaml.v2"
 )
 
 // Builder is the config file (yaml, json) builder

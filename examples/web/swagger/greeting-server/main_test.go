@@ -1,12 +1,13 @@
 package main
 
 import (
+	"sync"
 	"testing"
-	"time"
 )
 
+var mu sync.Mutex
 func TestRunMain(t *testing.T) {
-	time.Sleep(1)
+	mu.Lock()
 	go main()
+	mu.Unlock()
 }
-

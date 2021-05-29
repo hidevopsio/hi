@@ -1,6 +1,6 @@
 package web
 
-import "hidevops.io/hiboot/pkg/inject/annotation"
+import "github.com/hidevopsio/hiboot/pkg/inject/annotation"
 
 // HttpMethodSubscriber
 type HttpMethodSubscriber interface {

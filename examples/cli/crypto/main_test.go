@@ -16,11 +16,14 @@
 package main
 
 import (
+	"sync"
 	"testing"
-	"time"
 )
 
+var mu sync.Mutex
+
 func TestRunMain(t *testing.T) {
+	mu.Lock()
 	go main()
-	time.Sleep(200 * time.Millisecond)
+	mu.Unlock()
 }

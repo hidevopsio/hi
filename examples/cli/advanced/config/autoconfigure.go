@@ -1,8 +1,8 @@
 package config
 
 import (
-	"hidevops.io/hiboot/examples/cli/advanced/model"
-	"hidevops.io/hiboot/pkg/app"
+	"github.com/hidevopsio/hiboot/examples/cli/advanced/model"
+	"github.com/hidevopsio/hiboot/pkg/app"
 )
 
 // Profile is the configuration name

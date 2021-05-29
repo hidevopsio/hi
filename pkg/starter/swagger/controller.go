@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/handlers"
-	"hidevops.io/hiboot/pkg/app/web/context"
-	"hidevops.io/hiboot/pkg/at"
+	"github.com/hidevopsio/hiboot/pkg/app/web/context"
+	"github.com/hidevopsio/hiboot/pkg/at"
 	"net/http"
 	"path"
 )
@@ -54,6 +54,7 @@ func (c *controller) serve(ctx context.Context, docsPath string) {
 			BasePath: basePath,
 			SpecURL:  path.Join(basePath, "swagger.json"),
 			Path:     docsPath,
+			RedocURL: c.apiInfoBuilder.RedocURL,
 		}, http.NotFoundHandler())
 
 		// handle cors

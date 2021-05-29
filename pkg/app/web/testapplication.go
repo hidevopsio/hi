@@ -21,7 +21,7 @@ import (
 	"github.com/iris-contrib/httpexpect"
 	"github.com/kataras/iris/httptest"
 	"github.com/stretchr/testify/assert"
-	"hidevops.io/hiboot/pkg/log"
+	"github.com/hidevopsio/hiboot/pkg/log"
 )
 
 // TestApplication the test web application interface for unit test only
